@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Docx TEMP
+*.tmp
+
+
 # C extensions
 *.so
 
