@@ -4,7 +4,9 @@ entry start
 
 include 'win32a.inc'
 
+;=================================================
 section '.data' data readable writeable
+;=================================================
 
         prompt db 'Enter x and a',10,0
         input db '%lf',0
@@ -17,7 +19,6 @@ section '.data' data readable writeable
         newline db '',10,0
         a dq 0
         x dq 0
-        ;x dd 0
         y1 dq 0
         y2 dq 0
         y dq 0
@@ -27,14 +28,16 @@ section '.data' data readable writeable
         reminder dq 0
 
 
+;=================================================
 section '.code' code readable writeable executable
+;=================================================
 
 start:
         invoke printf, prompt
         invoke scanf, input, x
         invoke scanf, input, a
 
-        looop:
+        while_loop:
                 finit
                 fld qword [ds:x]
                 mov [ds:temp], 2
@@ -111,16 +114,18 @@ start:
                 inc ecx
                 cmp ecx, [ds:n]
                 mov [ds:i], ecx
-                jne looop
+                jne while_loop
                 ;---------------------
   
   invoke getch
   
   invoke ExitProcess, 0
-
+;=================================================
 section '.idata' data import readable
+;=================================================
         library kernel, 'kernel32.dll',\
                 msvcrt, 'msvcrt.dll'
+  
   
   import kernel,\
                                 ExitProcess, 'ExitProcess'
