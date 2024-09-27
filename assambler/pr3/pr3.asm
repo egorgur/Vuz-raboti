@@ -1,182 +1,154 @@
-format PE Console
+format PE console
+
 entry start
-include 'win32a.inc'
 
-;=================================================
+include 'win32ax.inc'
+
+;=======================================================
 section '.data' data readable writeable
-;=================================================
+;=======================================================
+matrix db 5, 0, 1, 5 ; Матрица, заданная в коде. 
+       db 3, 4, 2, 4 ; Размер матрицы 4x4 (4 строки, 4 столбца).
+       db 5, 8, 6, 0
+       db 1, 2, 1, 0
 
-        input_n db 'Enter number of columns: ',0
-        input_m db 'Enter number of rows: ',0
-        input_item db 'Enter a[%d][%d]: ',0
-        scan_int db '%d',0
-        output_matrix db 'Final matrix:',0
-        output_int_matrix db '%4d ',0
-        output_max db 'Maximum item occuring more than once: %d',0
-        newline db 10,0
+matrix_rows equ 4      ; Количество строк матрицы.
+matrix_cols equ 4      ; Количество столбцов матрицы.
+n dd 3                 ; Переменная для итераций по строкам (n = 3).
+m dd 3                 ; Переменная для итераций по столбцам (m = 3).
 
-        n dd 0
-        m dd 0
-        len dd 0
-        matrix dd 100 dup(0)
-        count dd 100 dup(0)
-
-        i dd 0
-        j dd 0
-        k dd 0
-        kk dd 0
-        c dd 0
-        max dd 0
-        temp dd 0
-
-;=================================================
-section '.code' code readable writeable executable
-;=================================================
-
+;=======================================================
+section '.text' code readable executable
+;=======================================================
 start:
-        invoke printf, input_n
-        invoke scanf, scan_int, n
-        invoke printf, input_m
-        invoke scanf, scan_int, m
-        invoke printf, newline
 
+;==================== Поиск строк =====================
+
+row:
+mov esi, 0             ; Инициализация счетчика строк (i = 0).
+mov edi, 0             ; Инициализация счетчика столбцов (j = 0).
+mov ebp, 1             ; Инициализация вспомогательного счетчика для сравнения (k = 1).
+mov edx, 0             ; Счетчик количества строк с одинаковыми элементами.
+
+loop_i_row:
+        ; Получаем элемент строки (matrix[i][j]).
+        mov eax, esi
+        imul eax, matrix_cols
+        add eax, edi 
+        movzx ebx, byte [matrix + eax]
+
+loop_j_row:
+        ; Получаем следующий элемент для сравнения.
+        mov eax, esi
+        imul eax, matrix_cols
+        add eax, ebp
+        movzx ecx, byte [matrix + eax]   ; Загружаем элемент matrix[i][k] в ecx.
+        cmp ebx, ecx                     ; Сравниваем элементы.
+        jne unequal_row                  ; Если элементы различны, переход.
+        inc edx                          ; Увеличиваем счетчик одинаковых строк.
+        jmp next_row                     ; Переходим к следующей строке.
+
+unequal_row:
+        cmp ebp, [m]                     ; Проверяем, достигнут ли конец строки.
+        jae equals_row                   ; Если да, проверяем строку на уникальность.
+        inc ebp                          ; Увеличиваем счетчик сравниваемых элементов.
+        jmp loop_j_row                   ; Продолжаем цикл по столбцам.
+
+equals_row:
+        mov eax, [m]                     ; Проверка, все ли столбцы пройдены.
+        cmp edi, eax
+        jae next_row
+        inc edi
+        cmp edi, eax
+        jae next_row
+        mov ebp, edi
+        inc ebp
+        jmp loop_i_row
+
+next_row:
+        mov eax, [n]                     ; Проверка, все ли строки пройдены.
+        cmp esi, eax
+        jae print_count_row
+        inc esi
+        mov edi, 0
+        mov ebp, 1
+        jmp loop_i_row
+
+print_count_row:
+        ; Печать количества строк с уникальными элементами.
         mov eax, [n]
-        imul eax, [m]
-        mov [len], eax
-        cmp [len], 0
-        jle exit
-        cmp [len], 100
-        ja exit
+        sub eax, edx
+        inc eax
+        cinvoke printf, "%d row ", eax   ; Вывод количества уникальных строк.
 
-        ; for i in (1:m) for j in (1:n)
-        lea esi, [matrix]
-        for_input_row:
-                mov eax, [k]
-                cmp eax, [len]
-                je for_input_end
+col:
+        mov esi, 0                       ; Инициализация счетчика строк (i = 0).
+        mov edi, 0                       ; Инициализация счетчика столбцов (j = 0).
+        mov ebp, 1                       ; Инициализация вспомогательного счетчика (k = 1).
+        mov edx, 0                       ; Счетчик количества столбцов с одинаковыми элементами.
 
-                mov eax, [i]
-                inc eax
-                mov [i], eax
-                mov [j], 0
-                for_input_item:
-                        mov eax, [j]
-                        inc eax
-                        mov [j], eax
-                        for_input_again:
-                        invoke printf, input_item, [i], [j]
-                        invoke scanf, scan_int, temp
+loop_i_col:
+        ; Получаем элемент столбца (matrix[i][j]).
+        mov eax, esi
+        imul eax, matrix_cols
+        add eax, edi
+        movzx ebx, byte [matrix + eax]
 
-                        cmp [temp], 1
-                        jl for_input_again
-                        cmp [temp], 99
-                        ja for_input_again
+loop_j_col:
+        ; Получаем следующий элемент столбца для сравнения.
+        mov eax, ebp
+        imul eax, matrix_cols
+        add eax, edi
+        movzx ecx, byte [matrix + eax]   ; Загружаем элемент matrix[k][j] в ecx.
+        cmp ebx, ecx                     ; Сравниваем элементы.
+        jne unequal_col                  ; Если элементы различны, переход.
+        inc edx                          ; Увеличиваем счетчик одинаковых столбцов.
+        jmp next_col                     ; Переход к следующему столбцу.
 
-                        mov eax, [temp]
-                        mov [esi], eax
-                        add esi, 4
+unequal_col:
+        cmp ebp, [n]                     ; Проверяем, достигнут ли конец столбца.
+        jae equals_col
+        inc ebp
+        jmp loop_j_col
 
-                        mov eax, [k]
-                        inc eax
-                        mov [k], eax
+equals_col:
+        mov eax, [n]                     ; Проверка, все ли строки пройдены.
+        cmp esi, eax
+        jae next_col
+        inc esi
+        cmp esi, eax
+        jae next_col
+        mov ebp, esi
+        inc ebp
+        jmp loop_i_col
 
-                        mov eax, [j]
-                        cmp eax, [n]
-                        je for_input_row
-                        jmp for_input_item
+next_col:
+        mov eax, [m]                     ; Проверка, все ли столбцы пройдены.
+        cmp edi, eax
+        jae print_count_col
+        inc edi
+        mov esi, 0
+        mov ebp, 1
+        jmp loop_i_col
 
-for_input_end:
-        invoke printf, newline
-        ; matrix output
-        invoke printf, output_matrix
-        lea esi, [matrix]
-        mov [j], 0
-        mov [k], 0
-        for_output_row:
-                mov eax, [k]
-                cmp eax, [len]
-                je for_output_end
+print_count_col:
+        ; Печать количества столбцов с уникальными элементами.
+        mov eax, [m]
+        sub eax, edx
+        inc eax
+        cinvoke printf, "%d col", eax   ; Вывод количества уникальных столбцов.
 
-                mov [j], 0
-                invoke printf, newline
-                for_output_item:
-                        mov eax, [j]
-                        inc eax
-                        mov [j], eax
-                        
-                        invoke printf, output_int_matrix, [esi]
-                        add esi, 4
+invoke getch                             ; Ожидание нажатия клавиши.
+invoke ExitProcess, 0                    ; Завершение программы.
 
-                        mov eax, [k]
-                        inc eax
-                        mov [k], eax
+;=======================================================
+section '.idata' import readable writable
+;=======================================================
+library kernel32, 'KERNEL32.DLL',\
+user32, 'USER32.DLL',\
+msvcrt, 'msvcrt.dll'
 
-                        mov eax, [j]
-                        cmp eax, [n]
-                        je for_output_row
-                        jmp for_output_item
-
-for_output_end:
-        invoke printf, newline
-        invoke printf, newline
-        ; find max
-        mov [k], 0
-        lea esi, [matrix]
-        for_fill_count:
-                mov eax, [esi]
-                imul eax, 4
-                add eax, count
-                mov ebx, [eax]
-                inc ebx
-                mov [eax], ebx
-
-                mov eax, [k]
-                inc eax
-                mov [k], eax
-                add esi, 4
-                mov eax, [k]
-                cmp eax, [len]
-                jl for_fill_count
-        
-        mov [k], 0
-        lea esi, [matrix]
-        for_find_max:
-                mov eax, [esi]
-                imul eax, 4
-                add eax, count
-                mov ebx, [eax]
-                cmp ebx, 1
-                jle for_find_max_skip
-                mov eax, [esi]
-                cmp eax, [max]
-                jle for_find_max_skip
-                mov [max], eax
-        for_find_max_skip:
-                mov eax, [k]
-                inc eax
-                mov [k], eax
-                add esi, 4
-                mov eax, [k]
-                cmp eax, [len]
-                jl for_find_max
-                
-        invoke printf, output_max, [max]
-
-exit:
-        invoke getch
-        invoke ExitProcess, 0
-
-;=================================================
-section '.idata' data import readable
-;=================================================
-
-        library kernel, 'kernel32.dll',\
-                msvcrt, 'msvcrt.dll'
-  
-        import kernel,\
-                ExitProcess, 'ExitProcess'
-          
-        import msvcrt,\
-                printf, 'printf',\
-                getch, '_getch',\
-                scanf, 'scanf'
+include 'api\kernel32.inc'
+include 'api\user32.inc'
+import msvcrt, printf, 'printf', \
+scanf, 'scanf', getch, '_getch'
