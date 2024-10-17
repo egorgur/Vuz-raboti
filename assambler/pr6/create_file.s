@@ -1,33 +1,59 @@
-.globl __start            
-  
-.rodata
-  O_RDWR:    .word 0b0000100  ; 4
-  O_CREAT:   .word 0b0100000  ; 64
-  path:      .string "output.txt"
-  ; array:     .byte 23, 4, 20, 13, 17, 27, 11, 21, 3, 9, 25, 18, 31, 1, 7, 10, 14, 26, 19, 16, 2, 24, 6, 35, 12, 34, 29, 32, 5, 33, 8, 15, 22, 28, 30
-  array:     .byte 11, 7, 8, 9, 15, 12, 2, 3, 4, 13, 12, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
-  size_arr:  .word  35 # 7*5
+.data
+filename:   .string "F:/Работа/вуз/Vuz-raboti/assambler/pr6/random_numbers.txt"    # ПУТЬ ФАЙЛА
+array_size: .word 25                        # Размер массива
+array:      .space 100                      # Массив случайных чисел (25 чисел по 4 байта)
+new_line:    .string  "\n"
 
 .text
-__start:
-  li a0, 13  ; 13 - open
-  la a1, path
-  lw a2, O_RDWR
-  lw t0, O_CREAT
-  or a2, a2, t0  ; a2 = O_RDWR | O_CREAT
-  ecall  ; открытие: путь, флаги открытия
-  mv s0, a0  ; s0 - file descriptor
+.globl _start
 
-  li a0, 15  ; 15 - write
-  mv a1, s0
-  la a2, array
-  lw a3, size_arr
-  ecall  ; запись: дескриптор, что записывать, сколько записывать
+# SysCalls https://github.com/TheThirdOne/rars/wiki/Environment-Calls
 
-  li a0, 16  ; 16 - close file
-  mv a1, s0
-  ecall  ; закрытие: дескриптор
+_start:
+    # Генерация случайных чисел и запись их в массив
+    li      t0, 25           # Количество чисел для генерации
+    la      t1, array        # Указатель на начало массива
+    
+    # Создание файла
+    li      a7, 1024
+    la      a0, filename
+    li      a1, 1
+    ecall
+    mv      s0, a0
+    
+    
 
-  li a0, 10
-  ecall
-  
+generate_random_loop:
+    li      a7, 41           # Системный вызов RandInt
+    li      a0, 1            # Флаг для генерации одного случайного числа
+    ecall
+
+    li      a7, 1
+    ecall                    # PrintInt
+
+    sw      a0, 0(t1)        # Запись случайного числа в массив
+    
+    li      a7, 4
+    la      a0, new_line
+    ecall
+    
+    addi    t1, t1, 4        # Переход к следующему элементу массива
+    addi    t0, t0, -1       # Уменьшение счетчика
+    bnez    t0, generate_random_loop
+
+    # Запись массива в файл
+    mv      a0, s0           # Файловый дескриптор
+    la      a1, array        # Указатель на данные для записи
+    li      a2, 100          # Размер данных (25 * 4 байта)
+    li      a7, 64           # Системный вызов write
+    ecall
+
+    # Закрытие файла
+    mv      a0, s0           # Файловый дескриптор
+    li      a7, 57           # Системный вызов close
+    ecall
+
+    # Завершение программы
+    li      a7, 93           # Системный вызов exit
+    li      a0, 0            # Код завершения программы
+    ecall

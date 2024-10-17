@@ -1,218 +1,129 @@
-.globl __start
-
-
 .data
-  maxItem:          .word -1000
-  indexColMaxItem:  .word 0
-  indexRowMaxItem:  .word 0
-  minItem:          .word 1000
-  currentRow:       .word 0
-
-
-.bss
-  array:            .zero 35  ; 7*5 по 1 байту
-
-
-.rodata
-  O_READONLY:       .word 0b0000001
-  path:             .string "output.txt"
-  size_arr:         .word  35  ; 7*5
-  N:                .word 5  ; колонки
-  M:                .word 7  ; строки
-  item_msg:         .string "Item is: "
-  index_col_msg:    .string "Index column is: "
-  index_row_msg:    .string "Index row is: "
-
+filename:    .string "F:/Работа/вуз/Vuz-raboti/assambler/pr6/random_numbers.txt"  # ПУТЬ ФАЙЛА
+buffer:      .space 100           # буфер для чтения данных из файла
+matrix:      .space 100           # матрица (25 элементов по 4 байта)
 
 .text
+.global _start
+
+# SysCalls https://github.com/TheThirdOne/rars/wiki/Environment-Calls
+
+_start:
+        # Открываем файл на чтение
+        la a0, filename           # имя файла
+        li a1, 0                  # режим чтения
+        li a7, 1024               # syscall open
+        ecall
+        mv t0, a0                 # сохраняем файловый дескриптор
+
+        # Читаем данные из файла в буфер
+        mv a0, t0                 # дескриптор
+        la a1, buffer             # адрес буфера
+        li a2, 100                # сколько байт прочитать
+        li a7, 63                 # syscall Read
+        ecall
+
+        # Закрываем файл
+        mv a0, t0                 # файловый дескриптор
+        li a7, 57                 # syscall close
+        ecall
+
+        # Преобразуем данные из буфера в матрицу
+        la t1, buffer             # указатель на буфер
+        li t2, 0                  # индекс строки
+        li t3, 0                  # индекс столбца
+        la t4, matrix             # указатель на матрицу
+
+parse_buffer:
+        # Если все данные считаны, продолжаем работу с матрицей
+        li t5, 25                 # всего 25 элементов
+        beq t2, t5, process_matrix
+
+        lb t6, 0(t1)              # считываем элемент из буфера
+        sb t6, 0(t4)              # сохраняем элемент в матрицу
+
+        addi t1, t1, 4            # смещаем указатель буфера
+        addi t4, t4, 4            # смещаем указатель матрицы
+        addi t2, t2, 1            # увеличиваем индекс
+        j parse_buffer
+
+process_matrix:
+        # Теперь матрица заполнена, выполняем замену элементов на 0 внутри ромба
+        li t2, 0                  # счётчик строк
+        li t3, 0                  # счётчик столбцов
+
+iterate_rows:
+        # Если все строки обработаны, выводим результат
+        li t0, 5                  # размер матрицы 5x5
+        beq t2, t0, print_matrix
+
+        li t3, 0                  # обнуляем счётчик столбцов
+
+iterate_cols:
+        # Если все столбцы в строке обработаны, переходим к следующей строке
+        beq t3, t0, next_row
+
+        # Условие для обнуления
+        add t4, t2, t3            # t4 = i + j
+        li t5, 4                  # n - 1 (для побочной диагонали)
+        beq t4, t5, skip_zero     # i + j == n - 1, не обнуляем
+        beq t2, t3, skip_zero     # i == j, не обнуляем
+
+        # Обнуляем элемент
+        slli t6, t2, 2            # смещаем строку (t2 * 4)
+        add t6, t6, t2            # t6 = t2 * 5 (адрес нужного элемента)
+        add t6, t6, t3            # добавляем столбец (индекс элемента t2*5 + t3)
+        slli t6, t6, 2            # умножаем на 4 (слово = 4 байта)
+        la t5, matrix             # указатель на начало матрицы
+        add t5, t5, t6            # получаем адрес элемента
+        sb zero, 0(t5)            # записываем 0
+
+skip_zero:
+        addi t3, t3, 1            # переходим к следующему столбцу
+        j iterate_cols
+
+next_row:
+        addi t2, t2, 1            # переходим к следующей строке
+        j iterate_rows
+
+print_matrix:
+        li t2, 0                  # обнуляем счётчик строк
+
+print_rows:
+        beq t2, t0, exit          # если все строки выведены, завершение программы
+
+        li t3, 0                  # обнуляем счётчик столбцов
+
+print_cols:
+        beq t3, t0, next_print_row
+
+        slli t6, t2, 2            # смещаем строку (t2 * 4)
+        add t6, t6, t2            # t6 = t2 * 5 (адрес нужного элемента)
+        add t6, t6, t3            # добавляем столбец (индекс элемента t2*5 + t3)
+        slli t6, t6, 2            # умножаем на 4 (слово = 4 байта)
+        la t1, matrix             # указатель на начало матрицы
+        add t1, t1, t6            # получаем адрес элемента
+        lb a0, 0(t1)              # загружаем элемент
+        li a7, 1                  # syscall 1 - вывод числа
+        ecall
+
+        li a0, ' '                # вывод пробела
+        li a7, 11                 # syscall 11 - вывод символа
+        ecall
+
+        addi t3, t3, 1            # переходим к следующему столбцу
+        j print_cols
+
+next_print_row:
+        li a0, 10                 # вывод новой строки
+        li a7, 11                 # syscall 11 - вывод символа
+        ecall
+
+        addi t2, t2, 1            # переходим к следующей строке
+        j print_rows
+
+exit:
+        li a7, 10                 # syscall 10 - завершение программы
+        ecall
 
 
-func:
-  mv t1, a0 ; t1: адресс входного массива
-  li t3, 0 ; текущая строка
-  arr_row:
-    lw t2, N
-    li t4, 0 ; t4: текущий столбец
-    arr_col:
-      mv t5, t3 ; t5: смещение
-      mul t5, t5, t2
-      add t5, t5, t4
-
-      mv t0, t1
-      add t0, t0, t5
-      lb t6, 0(t0) ; t6 - текущий элемент
-
-      ; Сравнение текущего элемента с максимальным элементом строки
-      la a1, maxItem
-      lw t0, 0(a1)
-      
-      la a0, indexColMaxItem
-      la a2, indexRowMaxItem
-      
-      blt t6, t0, not_max
-      sw t6, 0(a1)
-      sw t4, 0(a0)
-      sw t3, 0(a2)
-
-      not_max:
-
-      addi t4, t4, 1
-      blt t4, t2, arr_col
-    
-    la a1, currentRow
-    sw t3, 0(a1)
-    
-    li t3, 0
-
-    la a1, indexColMaxItem
-    lw t4, 0(a1)
-
-    check_min_by_index_max:
-        mv t5, t3 ; t5: смещение
-        mul t5, t5, t2
-        add t5, t5, t4
-
-        mv t0, t1
-        add t0, t0, t5
-        lb t6, 0(t0) ; t6 - текущий элемент
-        
-        ; проходимся по элемента столбца
-        la a1, minItem
-        lw t5, 0(a1)  
-        
-        bgt t6, t5, not_min
-        sw t6, 0(a1)
-
-        not_min:
-
-        addi t3, t3, 1
-        lw t0, M
-        blt t3, t0, check_min_by_index_max
-    
-    lw t5, minItem
-    lw t6, maxItem
-
-    bne t5, t6, not_equal
-
-    li a0, 4 ; 4 - вывод строки на экран
-    la a1, item_msg
-    ecall
-
-    li a0, 1 ; 1 - вывод целых чисел
-    lw a1, minItem
-    ecall
-
-    li a0, 11
-    li a1, '\n'
-    ecall
-    
-    li a0, 4 ; 4 - вывод строки на экран
-    la a1, index_col_msg
-    ecall
-
-    li a0, 1 ; 1 - вывод целых чисел
-    lw a1, indexColMaxItem
-    ecall
-
-    li a0, 11
-    li a1, '\n'
-    ecall
-    
-    li a0, 4 ; 4 - вывод строки на экран
-    la a1, index_row_msg
-    ecall
-
-    li a0, 1 ; 1 - вывод целых чисел
-    lw a1, indexRowMaxItem
-    ecall
-
-    li a0, 11
-    li a1, '\n'
-    ecall
-
-    not_equal:
-    
-    lw t3, currentRow
-    
-    li t6, 0
-    la a0, indexColMaxItem
-    la a2, indexRowMaxItem
-    sw t6, 0(a0)
-    sw t6, 0(a2)
-    
-    li t6, -1000
-    la a1, maxItem
-    sw t6, 0(a1)
-    
-    la a1, minItem
-    li t6, 1000
-    sw t6, 0(a1)
-
-    addi t3, t3, 1
-    lw t0, M
-    blt t3, t0, arr_row
-  li a0, 11
-  li a1, '\n'
-  ecall
-  ret
-        
-      
-print_arr:
-  mv t1, a0  ; t1: адресс входного массива
-  li t3, 0  ; текущая строка
-  print_arr_row:
-    lw t2, N
-    li t4, 0  ; t4: текущий столбец
-    print_arr_col:
-      mv t5, t3  ; t5: смещение
-      mul t5, t5, t2
-      add t5, t5, t4
-      
-      mv  t0, t1
-      add t0, t0, t5
-      lb t6, 0(t0)
-  
-      li a0, 1  ; вывод числа
-      mv a1, t6
-      ecall   
-      li a0, 11
-      li a1, ' '
-      ecall
-      
-      addi t4, t4, 1
-      blt t4, t2, print_arr_col
-    
-    li a0, 11  ; переход на следующую строку
-    li a1, '\n'
-    ecall
-
-    addi t3, t3, 1
-    lw t0, M
-    blt t3, t0, print_arr_row
-  li a0, 11
-  li a1, '\n'
-  ecall
-  ret
-
-
-__start:
-  li a0, 13  ; 13 - open
-  la a1, path
-  lw a2, O_READONLY  ; только чтение
-  ecall
-  mv s0, a0  ; s0 - file descriptor
-  
-  li a0, 14  ; чтение
-  mv a1, s0
-  la a2, array
-  lw a3, size_arr
-  ecall
-
-  la a0, array
-  call print_arr
-  
-  la a0, array
-  call func  ; задание
-  
-  li a0, 10
-  ecall
