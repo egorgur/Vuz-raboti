@@ -10,7 +10,7 @@ matrix:      .space 100           # матрица (25 элементов по 4
 
 _start:
         # Открываем файл на чтение
-        la a0, filename           # имя файла
+        la a0, filename           #zD ПУТЬ ФАЙЛА
         li a1, 0                  # режим чтения
         li a7, 1024               # syscall open
         ecall
