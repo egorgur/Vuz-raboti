@@ -66,7 +66,9 @@ sample_parameters <- function(sample, name) {
   # Эмпирическая функция нормального распределения
   f = ecdf(sample)
   plot(f, main = "Графики эмпирической функции распре-
-деления и теоретической функции распределения", col="#070C21")
+деления и теоретической функции распределения", col="#50c8b1")
+  legend("bottomright", legend = c("Эмпирическая функция", "Теоретическая функция"), 
+         col = c("#50c8b1", "red"), lty = 1, lwd = 2)
   norma <- pnorm(len, mean=a, sd=sigma) # Функия распределения нормального распределения
   lines(len, norma, col="#070C21")
 }
@@ -83,6 +85,7 @@ sample_parameters(sample3$data, sample3$name)
 
 confidence_intervals <- function(sample, q) {
   n <- length(sample)
+  
   sample_mean <- mean(sample)
   sample_sigma <- sd(sample)
   
@@ -117,57 +120,47 @@ cat(sample3$name,"\nДоверительный интервал для мат. �
 cat(sample3$name,"\nДоверительный интервал для дисперсии (q=0.95): ", ci_sample$variance_ci, "\n")
 
 
-create_mean_confidence_intervals_plots <- function(sample, name, q1, q2) {
-  n <- length(sample)
-  q_vals <- seq(q1, q2, length.out = 100)
-  interval_lengths <- numeric(length(q_vals))
+create_confidence_intervals_plots <- function(samples, q1, q2, param = "mean", names) {
+  q_vals <- seq(0.9, 0.99999, length.out = 100)
   
-  for (i in seq_along(q_vals)) {
-    # доверительные интервалы 
-    ci <- confidence_intervals(sample, q_vals[i])
-    # длины интервалов для мат. ожид.
-    interval_lengths[i] <- diff(ci$mean_ci)
+  # Установка цветов для выборок
+  colors <- c("#2fa0d7", "#f04f39", "#4caf50")
+  
+  # Создание пустого графика
+  plot(NULL, xlim = range(q_vals), ylim = c(0, max(sapply(samples, function(sample) {
+    n <- length(sample)
+    max_lengths <- sapply(q_vals, function(q) {
+      ci <- confidence_intervals(sample, q)
+      if (param == "mean") diff(ci$mean_ci) else diff(ci$variance_ci)
+    })
+    max(max_lengths)
+  }))),
+  type = "n", xlab = "Уровень доверия q", 
+  ylab = "Длина доверительного интервала", 
+  main = ifelse(param == "mean", 
+                "Длина доверительных интервалов для среднего (a)", 
+                "Длина доверительных интервалов для дисперсии (σ²)"))
+  
+  # Добавление графиков для каждой выборки
+  for (i in seq_along(samples)) {
+    sample <- samples[[i]]
+    interval_lengths <- sapply(q_vals, function(q) {
+      ci <- confidence_intervals(sample, q)
+      if (param == "mean") diff(ci$mean_ci) else diff(ci$variance_ci)
+    })
+    lines(q_vals, interval_lengths, col = colors[i], lwd = 1)
   }
   
-  plot(q_vals, interval_lengths, type = "l", col = "#070C21", lwd = 2,
-       main = paste("Длина доверительного интервала для мат. ожидания\n"),
-       xlab = "Уровень доверия q", ylab = "Длина интервала")
+  # Добавление легенды
+  legend("topleft", legend = names, col = colors, lty = 1, lwd = 2)
   
-  #for (i in seq_along(q_vals)) {
-    # доверительные интервалы 
-    #ci <- confidence_intervals(sample, q_vals[i])
-    # длины интервалов для дисперсии
-    #interval_lengths[i] <- diff(ci$variance_ci)
-  #}
-  
-  #plot(q_vals, interval_lengths, type = "l", col = "#070C21", lwd = 2,
-       #main = paste("Длина доверительного интервала для дисперсии\n", param, name),
-       #xlab = "Уровень доверия q", ylab = "Длина интервала")
 }
 
-create_var_confidence_intervals_plots <- function(sample, name, q1, q2) {
-  n <- length(sample)
-  q_vals <- seq(q1, q2, length.out = 100)
-  interval_lengths <- numeric(length(q_vals))
-  
-  for (i in seq_along(q_vals)) {
-    # доверительные интервалы 
-    ci <- confidence_intervals(sample, q_vals[i])
-    # длины интервалов для дисперсии
-    interval_lengths[i] <- diff(ci$variance_ci)
-  }
-  
-  plot(q_vals, interval_lengths, type = "l", col = "#070C21", lwd = 2,
-  main = paste("Длина доверительного интервала для дисперсии\n"),
-  xlab = "Уровень доверия q", ylab = "Длина интервала")
-}
-par(mfrow = c(3,1))
-create_mean_confidence_intervals_plots(sample1$data, sample$name, 0.9, 0.999999)
-create_mean_confidence_intervals_plots(sample2$data, sample$name, 0.9, 0.999999)
-create_mean_confidence_intervals_plots(sample3$data, sample$name, 0.9, 0.999999)
-create_var_confidence_intervals_plots(sample1$data, sample$name, 0.9, 0.999999)
-create_var_confidence_intervals_plots(sample2$data, sample$name, 0.9, 0.999999)
-create_var_confidence_intervals_plots(sample3$data, sample$name, 0.9, 0.999999)
+samples <- list(sample1$data, sample2$data, sample3$data)
+names <- list(sample1$name, sample2$name, sample3$name)
+
+create_confidence_intervals_plots(samples, 0.9, 0.999999, "mean", names)
+create_confidence_intervals_plots(samples, 0.9, 0.999999, "var", names)
 
 
 
