@@ -50,14 +50,18 @@ sample_parameters <- function(sample, name) {
   
   
   # Норм. распределение по точечным оценкам
-  len <- seq(sample_mean - 3*sigma, sample_mean + 3*sigma, length.out=200) # диапазон построения нормального распределения
+  len <- seq(sample_mean - 3*sigma, sample_mean + 3*sigma, length.out=1000) # диапазон построения нормального распределения
   norma <- dnorm(len, mean=a, sd=sigma) # Функция плотности нормального распределения
   
+  # Расчёт разбиений вручную
+  num_bins <- ceiling(log2(length(sample)) + 1) # Формула Стерджеса
+  breaks <- seq(min(sample), max(sample), length.out = num_bins + 1)
+  
   # Построение гистограммы относительных частот выборки
-  hist(sample, freq = FALSE, breaks = "Sturges",
+  hist(sample, freq = FALSE, breaks = breaks,
        main = paste("Гистограмма относительных частот\n", name),
        xlab = "Значения", ylab = "h_i", col = "#50c8b1", border = "#070C21",
-       ylim=c(0, 1.4*max(norma)), xlim=range(len)
+       ylim=c(0, 1.5*max(norma)),  xlim = range(len)
        )
   
   # Построение нормального распределения
@@ -65,10 +69,11 @@ sample_parameters <- function(sample, name) {
   
   # Эмпирическая функция нормального распределения
   f = ecdf(sample)
-  plot(f, main = "Графики эмпирической функции распре-
-деления и теоретической функции распределения", col="#50c8b1")
+  plot(f, main = paste("Графики эмпирической функции распре-
+деления и теоретической функции распределения\n", name), xlim=range(len), col="#50c8b1")
   legend("bottomright", legend = c("Эмпирическая функция", "Теоретическая функция"), 
-         col = c("#50c8b1", "red"), lty = 1, lwd = 2)
+         col = c("#50c8b1", "#070C21"), lty = 1, lwd = 2)
+  
   norma <- pnorm(len, mean=a, sd=sigma) # Функия распределения нормального распределения
   lines(len, norma, col="#070C21")
 }
@@ -138,7 +143,7 @@ create_confidence_intervals_plots <- function(samples, q1, q2, param = "mean", n
   type = "n", xlab = "Уровень доверия q", 
   ylab = "Длина доверительного интервала", 
   main = ifelse(param == "mean", 
-                "Длина доверительных интервалов для среднего (a)", 
+                "Длина доверительных интервалов для мат. ожидания (a)", 
                 "Длина доверительных интервалов для дисперсии (σ²)"))
   
   # Добавление графиков для каждой выборки
