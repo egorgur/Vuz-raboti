@@ -124,7 +124,7 @@ create_confidence_intervals_plots <- function(samples, q1, q2, param = "mean", n
   q_vals <- seq(0.9, 0.99999, length.out = 100)
   
   # Установка цветов для выборок
-  colors <- c("#2fa0d7", "#f04f39", "#4caf50")
+  colors <- c("#50c8b1", "#2fa0d7", "#070C21")
   
   # Создание пустого графика
   plot(NULL, xlim = range(q_vals), ylim = c(0, max(sapply(samples, function(sample) {
