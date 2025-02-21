@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <link href="/src/app/global.css" rel="stylesheet" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Vite + TS</title>
+    </head>
+    <body>
+        <header
+            class="w-full fixed flex flex-row justify-center items-center py-3 bg-transparent backdrop-blur-xs border-b z-10"
+        >
+            <div class="w-full max-w-[1200px] flex flex-row">
+                <nav class="flex flex-row gap-4">
+                    <div>
+                        <a href="https://vite.dev/"
+                            ><img
+                                src="./src/shared/ui/icons/vite.svg"
+                                class="h-7"
+                                alt="Vite"
+                        /></a>
+                    </div>
+                    <div>
+                        <a href="https://www.typescriptlang.org"
+                            ><img
+                                src="./src/shared/ui/icons/typescript.svg"
+                                class="h-7"
+                                alt="TypeScript"
+                        /></a>
+                    </div>
+                </nav>
+
+                <div class="grow"></div>
+
+                <nav class="flex flex-row gap-12">
+                    <a href="#overview">Overview</a>
+                    <a href="#examples">Examples</a>
+                    <a href="#contacts">Contacts</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="grow flex flex-col">
+            <section
+                class="h-[500px] border-b-1 border-dashed border-gray-700 flex flex-row justify-center"
+            >
+                <aside
+                    class="grow relative overflow-visible flex flex-col justify-start"
+                >
+                    <div
+                        class="w-[300px] h-[300px] rounded-full absolute border border-dashed"
+                    ></div>
+                </aside>
+                <div
+                    class="w-full h-full max-w-[1200px] pt-12 flex flex-row items-center border-x border-dashed border-gray-700"
+                >
+                    <div class="max-w-[250px] w-full shrink"></div>
+                    <div class="font-light flex flex-col items-start">
+                        <div class="text-6xl">Nova UI</div>
+                        <div>your's components library</div>
+                    </div>
+                    <div class="w-[100px]"></div>
+                    <div class="flex flex-row relative">
+                        <div
+                            class="translate-y-[-12rem] w-[500px] h-[500px] border rounded-full absolute"
+                        ></div>
+                        <div class="w-[300px] h-[300px] border absolute"></div>
+                    </div>
+                </div>
+                <aside class="grow"></aside>
+            </section>
+            <section
+                id="overview"
+                class="h-[500px] border-b-1 border-dashed border-gray-700 flex flex-row justify-center"
+            >
+                <aside
+                    class="grow relative overflow-visible flex flex-col justify-center"
+                >
+                    <div
+                        class="w-[300px] h-[300px] rounded-tr-full absolute border border-dashed"
+                    ></div>
+                </aside>
+                <div
+                    class="w-full h-full max-w-[1200px] border-x border-dashed border-gray-700"
+                ></div>
+                <aside
+                    class="grow relative overflow-visible flex flex-col justify-start items-end"
+                >
+                    <div
+                        class="translate-y-[-5rem] w-[600px] h-[300px] rounded-b-full absolute border border-dashed"
+                    ></div>
+                </aside>
+            </section>
+            <section
+                id="examples"
+                class="h-[500px] border-dashed border-gray-700 flex flex-row justify-center"
+            >
+                <aside class="grow"></aside>
+                <div
+                    class="w-full h-full max-w-[1200px] border-x border-dashed border-gray-700"
+                ></div>
+                <aside
+                    class="grow relative overflow-visible flex flex-col justify-start items-end"
+                ></aside>
+            </section>
+        </main>
+
+        <footer
+            id="contacts"
+            class="h-[250px] w-full flex flex-col justify-center items-center bg-gray-900"
+        >
+            <div class="flex flex-col w-[1200px] h-full">
+                <section class="w-full flex flex-row items-baseline pt-10">
+                    <div class="text-2xl">Nova UI</div>
+                    <div class="grow"></div>
+                </section>
+
+                <div class="grow"></div>
+
+                <section class="w-full flex flex-row items-baseline pt-10">
+                    <div
+                        class="text-xl text-gray-500 flex flex-row items-center gap-1"
+                    >
+                        powered by
+                        <a
+                            class="flex flex-row gap-1.5 items-center"
+                            href="https://tailwindcss.com/"
+                        >
+                            <div>Tailwindcss</div>
+                            <img
+                                class="h-[20px]"
+                                src="./src/shared/ui/icons/tailwindcss.svg"
+                                alt=""
+                            />
+                        </a>
+                    </div>
+                    <div class="grow"></div>
+                </section>
+
+                <section
+                    class="w-full flex flex-row items-baseline pt-4 pb-4 text-gray-500"
+                >
+                    Nova UI © components library 2025
+                </section>
+            </div>
+        </footer>
+    </body>
+    <script type="module" src="/src/app/main.ts"></script>
+</html>
