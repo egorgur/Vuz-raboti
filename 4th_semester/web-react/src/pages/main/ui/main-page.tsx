@@ -1,7 +1,7 @@
 import { cn } from "@/shared/lib/tailwind";
 import { Card } from "@/widgets/card";
-import { useEffect, useState } from "react";
-import Cookies from 'js-cookie';
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export const MainPage = ({ className }: React.ComponentProps<"main">) => {
   // Счётчик
@@ -27,7 +27,7 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
     });
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -39,7 +39,7 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
   };
 
   // Обработчик отправки формы
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     // Формируем URL с query-параметрами
@@ -50,11 +50,11 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Ответ от сервера:', data);
-        alert('Ответ от сервера: ' + JSON.stringify(data, null, 2));
+        console.log("Ответ от сервера:", data);
+        alert("Ответ от сервера: " + JSON.stringify(data, null, 2));
       })
       .catch((error) => {
-        console.error('Ошибка:', error);
+        console.error("Ошибка:", error);
       });
   };
 
@@ -110,42 +110,42 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
       </Card>
 
       <Card className="w-[500px] h-[120px] flex-col flex p-5 gap-5 border border-gray-950 hover:border-gray-800 transition-all duration-75">
-      <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          Поле 1:
-          <input
-            type="text"
-            name="field1"
-            value={formData.field1}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Поле 2:
-          <input
-            type="text"
-            name="field2"
-            value={formData.field2}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Поле 3:
-          <input
-            type="text"
-            name="field3"
-            value={formData.field3}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-      <button type="submit">Отправить</button>
-    </form>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label>
+              Поле 1:
+              <input
+                type="text"
+                name="field1"
+                value={formData.field1}
+                onChange={handleChange}
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Поле 2:
+              <input
+                type="text"
+                name="field2"
+                value={formData.field2}
+                onChange={handleChange}
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Поле 3:
+              <input
+                type="text"
+                name="field3"
+                value={formData.field3}
+                onChange={handleChange}
+              />
+            </label>
+          </div>
+          <button type="submit">Отправить</button>
+        </form>
       </Card>
 
       <div className={"h-[300px]"}></div>
