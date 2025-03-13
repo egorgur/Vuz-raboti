@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { path, resolve } from "path";
+import { resolve } from "path";
 import alias from "@rollup/plugin-alias";
 import tailwindcss from "@tailwindcss/vite";
 

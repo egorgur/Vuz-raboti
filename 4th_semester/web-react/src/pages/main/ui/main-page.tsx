@@ -14,7 +14,7 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
     field3: "",
   });
 
-  // При загрузке компонента восстанавливаем значения из куки
+  // Кукии
   useEffect(() => {
     const savedField1 = Cookies.get("field1") || "";
     const savedField2 = Cookies.get("field2") || "";
@@ -34,19 +34,16 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
       [name]: value,
     });
 
-    // Сохраняем значение в куки
-    Cookies.set(name, value, { expires: 7 }); // expires: 7 — куки сохраняются на 7 дней
+    Cookies.set(name, value, { expires: 7 }); //куки на 7 дней
   };
 
-  // Обработчик отправки формы
+  // ивент формы
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    // Формируем URL с query-параметрами
     const queryParams = new URLSearchParams(formData).toString();
     const url = `https://httpbin.org/get?${queryParams}`;
-
-    // Отправляем GET-запрос
+    
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -63,7 +60,7 @@ export const MainPage = ({ className }: React.ComponentProps<"main">) => {
       id="overview"
       className={cn(
         "flex flex-col grow justify-center items-center gap-4",
-        className
+        
       )}
     >
       <div className={"h-[200px]"}></div>

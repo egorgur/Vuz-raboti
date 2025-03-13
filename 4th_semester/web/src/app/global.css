@@ -8,7 +8,6 @@
 
     color-scheme: light dark;
 
-    @apply bg-gray-950;
     @apply text-gray-100;
 
     font-synthesis: none;
@@ -27,11 +26,11 @@
     }
 }
 
-html,
-body {
-    @apply w-full h-full;
+html {
+    background-image: url(../shared/ui/4b212ef4289891e8731968ee87df02a7.jpg);
 }
 
 body {
-    @apply flex flex-col overflow-y-scroll scroll-auto;
+    @apply flex flex-col;
+    @apply bg-gray-950/90;
 }
