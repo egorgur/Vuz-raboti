@@ -15,6 +15,7 @@ matplotlib = "^3.10.0"
 missingno = "^0.5.2"
 scikit-learn = "^1.6.1"
 openpyxl = "^3.1.5"
+imbalanced-learn = "^0.13.0"
 
 
 [build-system]
