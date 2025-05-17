@@ -1,0 +1,34 @@
+% Преамбула, там находится большинство \usepackage и настроек
+\input{preamble.tex}
+
+% Команды
+\input{commands.tex}
+
+% Окружение. Там находятся заготовленные блоки, типа Рисунков и т.д.
+\input{environment.tex}
+
+% Поля для заполнения
+\input{fields.tex}
+
+%Начало документа
+\begin{document}
+
+\fontsize{14pt}{14pt}\selectfont % Указываем размер шрифта
+
+% Настройка рисунков
+% Меняем "Рис." на "Рисунок"
+\renewcommand{\figurename}{Рисунок}
+
+% Титульная страница
+\input{title-page.tex}
+
+% ВВЕДЕНИЕ
+\input{introduction.tex}
+
+% ХОД РАБОТЫ
+\input{progress-of-work.tex}
+
+% ЗАКЛЮЧЕНИЕ
+\input{conclusion.tex}
+
+\end{document}

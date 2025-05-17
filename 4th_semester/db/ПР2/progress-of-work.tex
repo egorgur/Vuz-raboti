@@ -1,0 +1,235 @@
+% Локальные настройки
+
+
+
+% ХОД РАБОТЫ
+\chapter{ХОД РАБОТЫ}
+
+\vspace{14pt}
+
+\section{Задание 2}
+
+На рисунках \ref{fig:t2.1}, \ref{fig:t2.2}, \ref{fig:t2.3} представлен прогресс работы.
+
+\begin{myfigure}{2.1}
+  \caption{Создание таблицы}
+  \label{fig:t2.1}
+\end{myfigure}
+
+\begin{myfigure}{2.2}
+  \caption{Вставка значений различной точности и масштаба}
+  \label{fig:t2.2}
+\end{myfigure}
+
+\begin{myfigure}{2.3}
+  \caption{Проверка результата}
+  \label{fig:t2.3}
+\end{myfigure}
+
+\section{Задание 4}
+
+На рисунках \ref{fig:t4.1}, \ref{fig:t4.2} представлен прогресс работы.
+
+\begin{myfigure}{4.1}
+  \caption{Эксперименты с точностью, часть 1}
+  \label{fig:t4.1}
+\end{myfigure}
+
+\begin{myfigure}{4.2}
+  \caption{Эксперименты с точностью, часть 2}
+  \label{fig:t4.2}
+\end{myfigure}
+
+\section{Задание 6}
+
+На рисунках \ref{fig:t6.1}, \ref{fig:t6.2} представлен прогресс работы. Проверяется, что NaN больше предельных значений того же типа.
+
+\begin{myfigure}{6.1}
+  \caption{Эксперименты с NaN, часть 1}
+  \label{fig:t6.1}
+\end{myfigure}
+
+\begin{myfigure}{6.2}
+  \caption{Эксперименты с NaN, часть 2}
+  \label{fig:t6.2}
+\end{myfigure}
+
+\section{Задание 8}
+
+На рисунке \ref{fig:t8.1} представлен прогресс работы. Ошибка возникает, потому-что по умолчанию вставка в таблицу без указания id происходит со значением этого поля, равным 1. После ошибки, postgresql пересчитывает значение последовательности и вставка срабатывает.
+
+\begin{myfigure}{8.1}
+  \caption{Манипулирование строками}
+  \label{fig:t8.1}
+\end{myfigure}
+
+\section{Задание 10}
+
+На рисунке \ref{fig:t10.1} представлены ограничения типов. Они связаны с тем, что эти типы данных должны помещаться в 32 или 64 бита. Помимо этого, необходимо обеспечивать работу как с большими, так и маленькими данными.
+
+\begin{myfigure}{10.1}
+  \caption{Ограничения типов данных}
+  \label{fig:t10.1}
+\end{myfigure}
+
+\section{Задание 12}
+
+На рисунках \ref{fig:t12.1}, \ref{fig:t12.2}, \ref{fig:t12.3}, \ref{fig:t12.4}, \ref{fig:t12.5} показаны возможности изменения datestyle.
+
+\begin{myfigure}{12.1}
+  \caption{Экспериментирование с datestyle, часть 1}
+  \label{fig:t12.1}
+\end{myfigure}
+
+\begin{myfigure}{12.2}
+  \caption{Экспериментирование с datestyle, часть 2}
+  \label{fig:t12.2}
+\end{myfigure}
+
+\begin{myfigure}{12.3}
+  \caption{Экспериментирование с datestyle, часть 3}
+  \label{fig:t12.3}
+\end{myfigure}
+
+\begin{myfigure}{12.4}
+  \caption{Экспериментирование с datestyle, часть 4}
+  \label{fig:t12.4}
+\end{myfigure}
+
+\begin{myfigure}{12.5}
+  \caption{Экспериментирование с datestyle, часть 5}
+  \label{fig:t12.5}
+\end{myfigure}
+
+\section{Задание 14}
+
+На рисунках \ref{fig:t14.1}, \ref{fig:t14.2}, \ref{fig:t14.3}, \ref{fig:t14.4} показаны возможности изменения datestyle через файл "postgresql.conf".
+
+\begin{myfigure}{14.1}
+  \caption{Экспериментирование с datestyle, часть 1}
+  \label{fig:t14.1}
+\end{myfigure}
+
+\begin{myfigure}{14.2}
+  \caption{Экспериментирование с datestyle, часть 2}
+  \label{fig:t14.2}
+\end{myfigure}
+
+\begin{myfigure}{14.3}
+  \caption{Экспериментирование с datestyle, часть 2}
+  \label{fig:t14.3}
+\end{myfigure}
+
+\begin{myfigure}{14.4}
+  \caption{Экспериментирование с datestyle, часть 2}
+  \label{fig:t14.4}
+\end{myfigure}
+
+\section{Задание 16}
+
+На рисунке \ref{fig:t16.1} показана особенность postgresql по автоматической проверке даты на корректность.
+
+\begin{myfigure}{16.1}
+  \caption{Ввод недопустимого значения}
+  \label{fig:t16.1}
+\end{myfigure}
+
+\section{Задание 18}
+
+При вычитании одной даты из другой результатом будет являться количество дней - разница между датами. Наиболее удобный формат для таких данных - integer. На рисунке \ref{fig:t18.1} представлен пример.
+
+\begin{myfigure}{18.1}
+  \caption{Тип данных для разности двух дат}
+  \label{fig:t18.1}
+\end{myfigure}
+
+\section{Задание 20}
+
+Если прибавить интервал к временной отметке, получится временная отметка. На рисунке \ref{fig:t20.1} показан пример.
+
+\begin{myfigure}{20.1}
+  \caption{Сложение временнных отметки и интервала}
+  \label{fig:t20.1}
+\end{myfigure}
+
+\section{Задание 22}
+
+На рисунке \ref{fig:t22.1} показаны возможности стилистического оформления intervalstyle.
+
+\begin{myfigure}{22.1}
+  \caption{Эксперименты с intervalstyle}
+  \label{fig:t22.1}
+\end{myfigure}
+
+\section{Задание 24}
+
+На рисунке \ref{fig:t24.1} показан результат выполнения двух команд. Ошибка возникает, потому-что postgresql не понимает, что именно нужно вычесть: час, минуту, секунду. Исправляется приведением к типу INTERVAL. В случае с датой вычитание еденицы воспринимается, как вычитание одного дня, никаких проблем нет.
+
+\begin{myfigure}{24.1}
+  \caption{Результат выполнения двух команд}
+  \label{fig:t24.1}
+\end{myfigure}
+
+\section{Задание 26}
+
+На рисунке \ref{fig:t26.1} показана работа с функцией "date\_trunc".
+
+\begin{myfigure}{26.1}
+  \caption{Эксперименты с date\_trunc}
+  \label{fig:t26.1}
+\end{myfigure}
+
+\section{Задание 28}
+
+На рисунке \ref{fig:t28.1} показана работа с extract.
+
+\begin{myfigure}{28.1}
+  \caption{Применение extract}
+  \label{fig:t28.1}
+\end{myfigure}
+
+\section{Задание 30}
+
+На рисунке \ref{fig:t30.1} показана результат выполнения множества команд. Некоторые из них выдают ошибку: 2, 3, 4, 6, 8, 9. Все они связаны с тем, что postgres не может привести указанные типы данных к тем, что были указаны в таблице. Где-то забыты кавычки, где-то используется неуместное выражение, где-то необходимо явное приведение.
+
+\begin{myfigure}{30.1}
+  \caption{Результат выполнения множества команд}
+  \label{fig:t30.1}
+\end{myfigure}
+
+\section{Задание 32}
+
+На рисунках \ref{fig:t32.1}, \ref{fig:t32.2}, \ref{fig:t32.3} показаны функции и операции, применяемые к массивам.
+
+\begin{myfigure}{32.1}
+  \caption{Операции с массивами, часть 1}
+  \label{fig:t32.1}
+\end{myfigure}
+
+\begin{myfigure}{32.2}
+  \caption{Операции с массивами, часть 2}
+  \label{fig:t32.2}
+\end{myfigure}
+
+\begin{myfigure}{32.3}
+  \caption{Операции с массивами, часть 3}
+  \label{fig:t32.3}
+\end{myfigure}
+
+\section{Задание 34}
+
+Изменение значений по ключу с помощью функци jsonb\_set представлено на рисунке \ref{fig:t34.1}.
+
+\begin{myfigure}{34.1}
+  \caption{Применение jsonb\_set}
+  \label{fig:t34.1}
+\end{myfigure}
+
+\section{Задание 36}
+
+Добавление новых ключей json в таблице представлено на рисунке \ref{fig:t36.1}.
+
+\begin{myfigure}{36.1}
+  \caption{Добавление новых ключей}
+  \label{fig:t36.1}
+\end{myfigure}

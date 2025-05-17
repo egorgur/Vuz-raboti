@@ -1,0 +1,60 @@
+% Титульная страница
+\begin{titlepage}
+	\centering
+	\fontsize{14pt}{14pt}\selectfont % Указываем размер шрифта
+
+	Министерство науки и высшего образования  РФ
+	
+	{\fontsize{12pt}{12pt}\selectfont Федеральное государственное автономное} 
+
+	{\fontsize{12pt}{12pt}\selectfont образовательное учреждение высшего образования} 
+
+	{\fontsize{12pt}{12pt}\selectfont \textbf{«СИБИРСКИЙ ФЕДЕРАЛЬНЫЙ УНИВЕРСИТЕТ»}} 
+
+	\vspace{14pt}
+	
+	% Институт
+	\institute
+	\hrule
+	\vspace{7pt}
+	{\fontsize{10pt}{10pt}\selectfont институт} 
+	
+	% Кафедра
+	\department
+	\hrule
+	\vspace{7pt}
+	{\fontsize{10pt}{10pt}\selectfont кафедра} 
+	
+	\vfill
+
+	{\fontsize{16pt}{16pt}\selectfont \textbf{ОТЧЁТ О ПРАКТИЧЕСКОЙ РАБОТЕ}} 
+
+	\vspace{14pt}
+
+	% Тема отчёта
+	\workName
+	\hrule
+	\vspace{7pt}
+	{\fontsize{10pt}{10pt}\selectfont тема} 
+
+	\vspace{14pt}
+
+	\vfill
+
+	% Таблица
+	\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llcllll@{}}
+		\multicolumn{2}{@{}l}{Преподаватель} & & & & & \teacherInitialsSurname \\
+		\cline{5-5} \cline{7-7} 
+		\multicolumn{2}{@{}l}{\rule{0pt}{14pt}} & & & \multicolumn{1}{c}{\fontsize{10}{12}\selectfont подпись, дата} & & \multicolumn{1}{c}{\fontsize{10}{12}\selectfont инициалы, фамилия} \\
+		Студент & \multicolumn{2}{l}{\studentGroupNumber, \studentPassbookNumber} & & & & \studentInitialsSurname \\
+		\cline{2-3} \cline{5-5} \cline{7-7} 
+	    \rule{0pt}{14pt} & & \multicolumn{1}{c}{\fontsize{10}{12}\selectfont номер группы, зачётной книжки} & & \fontsize{10}{12}\selectfont подпись, дата & & \multicolumn{1}{c}{\fontsize{10}{12}\selectfont инициалы, фамилия}
+	\end{tabular*}
+
+	\vfill	
+	
+	% Город, дата
+	Красноярск \the\year
+
+	\thispagestyle{empty} % Не учитываем титульник в нумерации
+\end{titlepage}

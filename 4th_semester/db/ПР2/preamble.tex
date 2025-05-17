@@ -1,0 +1,113 @@
+\documentclass[14pt]{report} % Размер шрифта 14 pt
+\usepackage{fontspec} % Для использования системных шрифтов
+\usepackage{geometry} % отступы документа
+\usepackage[utf8]{inputenc} % Для поддержки UTF-8
+\usepackage[russian]{babel} % Для русского языка
+\usepackage{datetime} % Пакет для работы с датами
+\usepackage{tabularx} % Пакет для работы с таблицами
+\usepackage{titlesec} % Для смены стилей разделов
+\usepackage{indentfirst} % Для отступа первой строки в первом абзаце
+\usepackage{enumitem} % Продвинутая работа со списками
+\usepackage{fancyhdr} % Нумерация
+\usepackage{setspace} % Подключаем пакет для управления межстрочным интервалом
+\usepackage{caption} % Работа с изображениями
+\usepackage{graphicx} % Работа с изображениями
+\usepackage{booktabs} % Для тонких линий
+\usepackage{float} % поведение изображения на странице
+
+
+\geometry{top=20mm, bottom=20mm, left=30mm, right=10mm}
+
+\setmainfont{Times New Roman} % Устанавливаем Times New Roman как основной шрифт
+% Определяем новый стиль шрифта для подписей
+\DeclareCaptionFont{myfont}{\fontsize{14}{14}\selectfont}
+
+\linespread{1}
+\singlespacing % Устанавливаем одинарный интервал для всего документа
+% Глобальный отступ первой строки
+\setlength{\parindent}{1.25cm} % Отступ первой строки для всех абзацев
+
+\renewcommand{\headrulewidth}{0pt} % Убирает верхнюю линию колонтитула
+
+% Настройка списков
+\setlist{
+  nosep, % Убирает лишние отступы и интервалы
+  topsep=0pt, % Отступ сверху
+  partopsep=0pt, % Дополнительный отступ сверху
+  itemsep=0pt, % Отступ между элементами списка
+  parsep=0pt, % Отступ между абзацами внутри элементов списка
+  leftmargin=* % Выравнивание списка по левому краю
+}
+
+\titleformat{\part}
+  {\normalfont\fontsize{14}{14}\bfseries\centering} % Форматирование
+  {} % Метка (не используется, так как раздел ненумерованный)
+  {0pt} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+% Настройка всех уровней секций
+\titleformat{\chapter}
+  {\normalfont\fontsize{14}{14}\bfseries\centering} % Форматирование
+  {} % Метка (не используется, так как раздел ненумерованный)
+  {0pt} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+\titleformat{\section}
+  {\fontsize{14}{14}\bfseries} % Форматирование
+  {\hspace{1.25cm}\thesection} % Метка (не используется, так как раздел ненумерованный)
+  {\labelsep} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+\titleformat{\subsection}
+  {\normalfont\fontsize{14}{14}\bfseries} % Форматирование
+  {\thesubsection} % Метка (номер подраздела)
+  {\labelsep} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{14}{14}\bfseries} % Форматирование
+  {\thesubsubsection} % Метка (номер подподраздела)
+  {\labelsep} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+\titleformat{\paragraph}
+  {\normalfont\fontsize{14}{14}\bfseries} % Форматирование
+  {\theparagraph} % Метка (номер параграфа)
+  {\labelsep} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+\titleformat{\subparagraph}
+  {\normalfont\fontsize{14}{14}\bfseries} % Форматирование
+  {\thesubparagraph} % Метка (номер подпараграфа)
+  {\labelsep} % Отступ перед заголовком
+  {} % Код перед заголовком
+
+% Настройка отступов вокруг заголовков
+\titlespacing*{\chapter}{0pt}{0pt}{0pt}
+\titlespacing*{\section}{0pt}{14pt}{14pt} % Отступы для \section
+\titlespacing*{\subsection}{0pt}{0pt}{1em} % Отступы для \subsection
+\titlespacing*{\subsubsection}{0pt}{0pt}{1em} % Отступы для \subsubsection
+\titlespacing*{\paragraph}{0pt}{0pt}{1em} % Отступы для \paragraph
+\titlespacing*{\subparagraph}{0pt}{0pt}{1em} % Отступы для \subparagraph
+
+% Настройка нумерации
+\pagestyle{fancy} % Включаем стиль fancy для колонтитулов
+\fancyhf{} % Очищаем колонтитулы
+\fancyfoot[C]{\thepage} % Добавляем номер страницы по центру внизу
+
+\renewcommand{\thesection}{\arabic{section}} % Начинаем нумерацию секций с 1 в каждом разделе \chapter
+\counterwithout{figure}{section} % Отвязываем \chapter от \section
+
+% Настраиваем формат подписи с длинным тире
+\captionsetup[figure]{
+  labelsep=endash, % Используем длинное тире (—)
+  format=plain,    % Простой формат (без дополнительных стилей)
+  justification=centering, % Выравнивание по центру
+  skip=14pt, % Отступ между изображением и подписью
+  font=myfont  % Размер шрифта подписи (14pt)
+}
+
+% Настройка изображений
+\graphicspath{ {Images/} } % Путь до изображений
+\setlength{\intextsep}{0pt} % Отступ вокруг плавающего объекта
+\setlength{\topsep}{0pt} % Отступ сверху и снизу плавающего объекта

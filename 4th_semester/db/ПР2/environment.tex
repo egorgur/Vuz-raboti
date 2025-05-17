@@ -1,0 +1,8 @@
+\newenvironment{myfigure}[2][H]{
+	\vspace{14pt}
+  \begin{figure}[#1]
+    \centering
+    \includegraphics[width=0.75\textwidth]{#2} % Размер изображения (80% ширины текста)
+}{
+  \end{figure}
+}
