@@ -1999,6 +1999,22 @@ qa = ["flake8 (==5.0.4)", "mypy (==0.971)", "types-setuptools (==67.2.0.1)"]
 testing = ["docopt", "pytest"]
 
 [[package]]
+name = "pasteboard"
+version = "0.3.3"
+description = "Pasteboard - Python interface for reading from NSPasteboard (macOS clipboard)"
+optional = false
+python-versions = ">=3.6,<4.0"
+groups = ["main"]
+markers = "platform_system == \"Darwin\""
+files = [
+    {file = "pasteboard-0.3.3-cp36-cp36m-macosx_10_15_x86_64.whl", hash = "sha256:afd171e200316f6b3d3da381476921ca57cb8f26d2fa418f779454913918dbb9"},
+    {file = "pasteboard-0.3.3-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:f99dd6c7039b755756b2068942c4c2487d6366e5a56eafd6db0ae7aa2a371a0e"},
+    {file = "pasteboard-0.3.3-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:19229dfa28f41afb5e731ac81e52bbc4212f67d678c082d3e3621cec0628a773"},
+    {file = "pasteboard-0.3.3-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:20a5c53bae8ac8186ecdd621020fb1b072d45a35f9f11a8e4cd5e82d76b485d0"},
+    {file = "pasteboard-0.3.3.tar.gz", hash = "sha256:d80275e76ff1eaaa5ca3d0e0fd8aecd5ea1298523dfd51f3774b5aaebdde02cf"},
+]
+
+[[package]]
 name = "patsy"
 version = "1.0.1"
 description = "A Python package for describing statistical models and for building design matrices."
@@ -2237,6 +2253,25 @@ files = [
 tests = ["pytest"]
 
 [[package]]
+name = "pyclip"
+version = "0.7.0"
+description = "Cross-platform clipboard utilities supporting both binary and text data."
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pyclip-0.7.0-py3-none-any.whl", hash = "sha256:a7b7ea2cfad2dd61e86a529af588d006070d3eb0bd32981afaee5215f4604fec"},
+    {file = "pyclip-0.7.0.tar.gz", hash = "sha256:57602047a4ceab709bdcd42f3dde6449a3349b95c16154cfdce27376a2072491"},
+]
+
+[package.dependencies]
+pasteboard = {version = "0.3.3", markers = "platform_system == \"Darwin\""}
+pywin32 = {version = ">=1.0", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+test = ["pytest"]
+
+[[package]]
 name = "pycparser"
 version = "2.22"
 description = "C parser in Python"
@@ -2361,7 +2396,7 @@ description = "Python for Window Extensions"
 optional = false
 python-versions = "*"
 groups = ["main"]
-markers = "sys_platform == \"win32\" and platform_python_implementation != \"PyPy\""
+markers = "sys_platform == \"win32\" and platform_python_implementation != \"PyPy\" or platform_system == \"Windows\""
 files = [
     {file = "pywin32-310-cp310-cp310-win32.whl", hash = "sha256:6dd97011efc8bf51d6793a82292419eba2c71cf8e7250cfac03bba284454abc1"},
     {file = "pywin32-310-cp310-cp310-win_amd64.whl", hash = "sha256:c3e78706e4229b915a0821941a84e7ef420bf2b77e08c9dae3c76fd03fd2ae3d"},
@@ -3365,7 +3400,26 @@ files = [
 [package.dependencies]
 h11 = ">=0.9.0,<1"
 
+[[package]]
+name = "yellowbrick"
+version = "1.5"
+description = "A suite of visual analysis and diagnostic tools for machine learning."
+optional = false
+python-versions = ">=3.4, <4"
+groups = ["main"]
+files = [
+    {file = "yellowbrick-1.5-py3-none-any.whl", hash = "sha256:4bb2895cecf94a0e736398bbac6c5d72032ba3ff2273f49df660b14ef419305d"},
+    {file = "yellowbrick-1.5.tar.gz", hash = "sha256:99a6336dd2e7ce586a8cde67966b79c51b479d3759f3c083d7e19ffe949f6076"},
+]
+
+[package.dependencies]
+cycler = ">=0.10.0"
+matplotlib = ">=2.0.2,<3.0.0 || >3.0.0"
+numpy = ">=1.16.0"
+scikit-learn = ">=1.0.0"
+scipy = ">=1.0.0"
+
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "00367e8e2d6b41c197249b9621562ad4a8f41294bbc6796a1d9f1c50a67a2e5b"
+content-hash = "f55fe712605b16c6f5a768b783b8045c71bade9b8a3be4ab8778edf74f76bb7d"
