@@ -41,7 +41,9 @@ def test_compare(driver):
     assert homepage.notetext.is_displayed(), "Product not deleted from compare"
 
 
-def test_404_request():
-    url = "https://krasdivan.shop/kaksdkasdk"
+def test_404_request(driver):
+    homepage = HomePage(driver)
+    homepage.navigate_to_unknown_page("https://krasdivan.shop/testtesttes")
+    url = "https://krasdivan.shop/testtesttes"
     response = requests.get(url)
     assert response.status_code == 404, "Bad response from server"
