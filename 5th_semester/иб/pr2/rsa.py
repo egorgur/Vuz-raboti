@@ -1,7 +1,7 @@
 import random
 import math
+import os
 from typing import Tuple, List
-
 
 class RSAEncryption:
     def __init__(self, n_digits: int = 31):
@@ -94,57 +94,103 @@ class RSAEncryption:
         return d
 
     def _calculate_block_size(self) -> int:
-        """Вычисление размера блока в байтах"""
-        # Блок должен быть меньше N
+        """Вычисление размера блока для данных с учетом PKCS#1 дополнения"""
         n_bits = self.n.bit_length()
-        # Оставляем запас для безопасного кодирования
-        block_size_bytes = (n_bits - 1) // 8
-        return max(1, block_size_bytes)
+        k = (n_bits + 7) // 8  # Размер модуля в байтах
+        return max(1, k - 11)  # PKCS#1 overhead
+
+    def _pad_block_pkcs1_v1_5(self, data: bytes) -> int:
+        """
+        Дополнение блока по схеме PKCS#1 v1.5 для шифрования
+        
+        Формат: 0x00 || 0x02 || [случайные ненулевые байты] || 0x00 || [данные]
+        """
+        k = (self.n.bit_length() + 7) // 8  # Размер модуля в байтах
+        data_len = len(data)
+        
+        if data_len > k - 11:
+            raise ValueError(f"Data too long for PKCS#1 padding. Max: {k-11} bytes, got: {data_len} bytes")
+        
+        # Вычисляем длину случайных байтов
+        padding_len = k - data_len - 3  # -3 для 0x00, 0x02, 0x00
+        
+        if padding_len < 8:
+            raise ValueError("Insufficient space for PKCS#1 padding (need at least 8 random bytes)")
+        
+        # Генерируем случайные ненулевые байты
+        random_bytes = bytearray()
+        while len(random_bytes) < padding_len:
+            random_byte = os.urandom(1)[0]
+            if random_byte != 0:
+                random_bytes.append(random_byte)
+        
+        # Собираем полный блок
+        padded_block = b'\x00\x02' + bytes(random_bytes) + b'\x00' + data
+        
+        # Конвертируем в число для шифрования
+        return int.from_bytes(padded_block, byteorder='big')
+
+    def _unpad_block_pkcs1_v1_5(self, block_int: int) -> bytes:
+        """
+        Удаление дополнения PKCS#1 v1.5 после дешифрования
+        """
+        k = (self.n.bit_length() + 7) // 8
+        block_bytes = block_int.to_bytes(k, byteorder='big')
+        
+        # Проверяем формат блока
+        if block_bytes[0] != 0x00:
+            raise ValueError("Invalid PKCS#1 padding: first byte must be 0x00")
+        
+        if block_bytes[1] != 0x02:
+            raise ValueError("Invalid PKCS#1 padding: second byte must be 0x02")
+        
+        # Ищем разделитель 0x00
+        separator_index = -1
+        for i in range(2, len(block_bytes)):
+            if block_bytes[i] == 0x00:
+                separator_index = i
+                break
+        
+        if separator_index == -1:
+            raise ValueError("Invalid PKCS#1 padding: separator 0x00 not found")
+        
+        # Проверяем, что случайных байтов достаточно (минимум 8)
+        random_bytes_count = separator_index - 2
+        if random_bytes_count < 8:
+            raise ValueError("Invalid PKCS#1 padding: insufficient random bytes")
+        
+        # Извлекаем данные после разделителя
+        data = block_bytes[separator_index + 1:]
+        
+        return data
 
     def _text_to_blocks(self, text: str) -> List[int]:
-        """Преобразование текста в числовые блоки"""
+        """Преобразование текста в числовые блоки с PKCS#1 дополнением"""
         # Кодируем текст в UTF-8
         text_bytes = text.encode("utf-8")
         block_size = self._calculate_block_size()
 
         blocks = []
 
-        # Разбиваем на блоки
+        # Разбиваем на блоки и применяем дополнение
         for i in range(0, len(text_bytes), block_size):
-            block_bytes = text_bytes[i : i + block_size]
-            # Преобразуем байты в число
-            block_int = 0
-            for byte in block_bytes:
-                block_int = (block_int << 8) | byte
-            blocks.append(block_int)
+            block_data = text_bytes[i:i + block_size]
+            padded_block = self._pad_block_pkcs1_v1_5(block_data)
+            blocks.append(padded_block)
 
         return blocks
 
     def _blocks_to_text(self, blocks: List[int]) -> str:
-        """Преобразование числовых блоков обратно в текст"""
+        """Преобразование числовых блоков обратно в текст с удалением дополнения"""
         bytes_list = bytearray()
-        block_size = self._calculate_block_size()
 
         for block in blocks:
-            # Извлекаем байты из блока
-            block_bytes = bytearray()
-            temp_block = block
-
-            # Извлекаем байты в правильном порядке
-            for _ in range(block_size):
-                if temp_block == 0:
-                    break
-                byte = temp_block & 0xFF
-                block_bytes.append(byte)
-                temp_block >>= 8
-
-            # Байты извлекаются в обратном порядке
-            block_bytes.reverse()
-            bytes_list.extend(block_bytes)
-
-        # Удаляем возможные нулевые байты в конце
-        while bytes_list and bytes_list[-1] == 0:
-            bytes_list.pop()
+            # Удаляем дополнение PKCS#1
+            try:
+                block_data = self._unpad_block_pkcs1_v1_5(block)
+                bytes_list.extend(block_data)
+            except ValueError as e:
+                raise ValueError(f"Failed to unpad block: {e}")
 
         return bytes_list.decode("utf-8", errors="replace")
 
@@ -187,13 +233,20 @@ class RSAEncryption:
 
     def get_key_info(self) -> dict:
         """Информация о ключах"""
+        n_bits = self.n.bit_length()
+        k_bytes = (n_bits + 7) // 8
+        
         return {
             "p": self.p,
             "q": self.q,
             "n": self.n,
+            "n_bits": n_bits,
+            "n_bytes": k_bytes,
             "phi": self.phi,
             "public_exponent": self.e,
             "private_exponent": self.d,
             "n_digits": len(str(self.n)),
             "block_size_bytes": self._calculate_block_size(),
+            "max_data_per_block": f"{self._calculate_block_size()} bytes",
+            "security_level": "LOW" if n_bits < 1024 else "MEDIUM" if n_bits < 2048 else "HIGH"
         }
