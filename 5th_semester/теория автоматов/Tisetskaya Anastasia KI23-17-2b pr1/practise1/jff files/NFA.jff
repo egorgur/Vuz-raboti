@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<structure>
+  <type>fa</type>
+  <automaton>
+    <!-- 0: старт (не принимающее) -->
+    <state id="0" name="q0">
+      <x>120.0</x><y>120.0</y>
+      <initial/>
+    </state>
+
+    <!-- 1: ветка a* (принимающее, петля по a) -->
+    <state id="1" name="q1">
+      <x>300.0</x><y>60.0</y>
+      <final/>
+    </state>
+
+    <!-- 2: ветка b^+ (читает ≥1 b) -->
+    <state id="2" name="q2">
+      <x>300.0</x><y>180.0</y>
+    </state>
+
+    <!-- 3: финальное состояние после завершающего 'a' в b^+a -->
+    <state id="3" name="q3">
+      <x>480.0</x><y>180.0</y>
+      <final/>
+    </state>
+
+    <!-- ε-развилка в две ветки -->
+    <transition><from>0</from><to>1</to><read/></transition>
+    <transition><from>0</from><to>2</to><read/></transition>
+
+    <!-- ветка a* -->
+    <transition><from>1</from><to>1</to><read>a</read></transition>
+
+    <!-- ветка b^+ a -->
+    <transition><from>2</from><to>2</to><read>b</read></transition>
+    <transition><from>2</from><to>3</to><read>a</read></transition>
+
+    <!-- у q3 нет выходов: после завершающего 'a' ничего нельзя читать -->
+  </automaton>
+</structure>

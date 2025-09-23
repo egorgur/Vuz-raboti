@@ -22,6 +22,7 @@ selenium = "^4.32.0"
 pytest = "^8.3.5"
 pyclip = "^0.7.0"
 yellowbrick = "^1.5"
+ipdb = "^0.13.13"
 
 
 [build-system]
