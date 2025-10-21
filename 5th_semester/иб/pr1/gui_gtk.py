@@ -44,7 +44,7 @@ class CipherGUI:
         """Создание пользовательского интерфейса"""
         # Главное окно
         self.window = Gtk.Window(
-            title="Шифр на основе магических квадратов - Расширенная генерация"
+            title="Шифр на основе магических квадратов"
         )
         self.window.set_default_size(1000, 800)
         self.window.connect("destroy", Gtk.main_quit)
