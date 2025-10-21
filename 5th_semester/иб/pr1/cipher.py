@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import hashlib
 from typing import List, Tuple, Optional
 
 
@@ -331,17 +330,82 @@ class MagicSquareCipher:
         return dict(zip(chars, substituted))
 
     def _generate_seed_from_magic_square(self, magic_square: np.ndarray) -> int:
-        """Генерация seed на основе магического квадрата"""
+        """
+        Алгоритм генерации 32-битного семени без внешних зависимостей.
+        """
         n = magic_square.shape[0]
+
+        # Сумма всех элементов квадрата
         total_sum = np.sum(magic_square)
+
+        # Произведение элементов главной диагонали
         main_diag = np.diag(magic_square)
+        main_diag_product = 1
+        for num in main_diag:
+            main_diag_product = (
+                main_diag_product * (num if num != 0 else 1)
+            ) & 0xFFFFFFFF
+
+        # Произведение элементов побочной диагонали
         anti_diag = np.diag(np.fliplr(magic_square))
+        anti_diag_product = 1
+        for num in anti_diag:
+            anti_diag_product = (
+                anti_diag_product * (num if num != 0 else 1)
+            ) & 0xFFFFFFFF
 
-        hash_input = f"{total_sum}_{np.prod(main_diag)}_{np.prod(anti_diag)}"
-        hash_obj = hashlib.md5(hash_input.encode())
-        hash_int = int(hash_obj.hexdigest(), 16)
+        # Сумма угловых элементов
+        corners_sum = (
+            magic_square[0, 0]  # левый верхний
+            + magic_square[0, n - 1]  # правый верхний
+            + magic_square[n - 1, 0]  # левый нижний
+            + magic_square[n - 1, n - 1]  # правый нижний
+        )
 
-        return hash_int & 0xFFFFFFFF
+        # Центральный элемент (или сумма центральных для четных n)
+        if n % 2 == 1:
+            center_value = magic_square[n // 2, n // 2]
+        else:
+            center_value = (
+                magic_square[n // 2 - 1, n // 2 - 1]
+                + magic_square[n // 2 - 1, n // 2]
+                + magic_square[n // 2, n // 2 - 1]
+                + magic_square[n // 2, n // 2]
+            )
+
+        # Характеристика распределения чисел - сумма модулей разностей соседних элементов
+        neighbor_diff_sum = 0
+        for i in range(n):
+            for j in range(n - 1):
+                neighbor_diff_sum += abs(magic_square[i, j] - magic_square[i, j + 1])
+            if i < n - 1:
+                neighbor_diff_sum += abs(magic_square[i, 0] - magic_square[i + 1, 0])
+
+        # Комбинируем все характеристики через битовые операции
+        seed = total_sum
+
+        # XOR с произведением диагоналей
+        seed ^= main_diag_product
+        seed ^= (anti_diag_product << 16) | (anti_diag_product >> 16)
+
+        # Добавляем информацию об углах и центре
+        seed = (
+            seed + corners_sum * 0x9E3779B9
+        ) & 0xFFFFFFFF  # золотое сечение множитель
+        seed ^= (center_value * 0x85EBCA6B) & 0xFFFFFFFF
+
+        # Добавляем информацию о распределении чисел
+        seed = (seed + neighbor_diff_sum) & 0xFFFFFFFF
+        seed = ((seed << 7) | (seed >> 25)) ^ 0xDEADBEEF  # циклический сдвиг и XOR
+
+        # Финальное перемешивание
+        seed = (seed * 0x343FD) & 0xFFFFFFFF  # линейный конгруэнтный множитель
+        seed = (seed + 0x269EC3) & 0xFFFFFFFF
+        seed = seed ^ (seed >> 16)
+        seed = (seed * 0x1B3) & 0xFFFFFFFF
+        seed = seed ^ (seed >> 4)
+
+        return seed & 0xFFFFFFFF  # Гарантируем 32-битный результат
 
     def apply_substitution(self, text: str, magic_square) -> str:
         """Применение подстановки к тексту"""
