@@ -1,5 +1,4 @@
 import numpy as np
-import hashlib
 
 
 class MagicSquareCipher:
@@ -85,31 +84,49 @@ class MagicSquareCipher:
 
         return magic_square
 
-    def create_substitution_table(self, key: str) -> dict:
-        """Создание таблицы подстановки на основе ключа"""
-        hash_obj = hashlib.sha256(key.encode())
-        hash_hex = hash_obj.hexdigest()
-
+    def create_substitution_table_from_magic_square(self, magic_square: np.ndarray) -> dict:
+        """Создание таблицы подстановки на основе магического квадрата"""
         chars = list(
             set(
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,!?-()[]{}:;'\""
             )
         )
         substituted = chars.copy()
-
-        # Перемешивание на основе хеша
-        seed = int(hash_hex[:8], 16)
+        
+        # Генерация seed из магического квадрата
+        seed = self._generate_seed_from_magic_square(magic_square)
         np.random.seed(seed)
         np.random.shuffle(substituted)
-
+        
         return dict(zip(chars, substituted))
 
-    def apply_substitution(self, text: str, key: str) -> str:
-        """Применение подстановки к тексту"""
-        if not key:
-            return text
+    def _generate_seed_from_magic_square(self, magic_square: np.ndarray) -> int:
+        """Генерация seed на основе магического квадрата"""
+        n = magic_square.shape[0]
+        
+        # Сумма всех элементов
+        total_sum = np.sum(magic_square)
+        
+        # Произведение диагоналей
+        main_diag = np.diag(magic_square)
+        anti_diag = np.diag(np.fliplr(magic_square))
+        diag_product = np.prod(main_diag) * np.prod(anti_diag)
+        
+        # Комбинация особых элементов
+        special_values = (
+            magic_square[0, 0] * magic_square[n-1, n-1] +  # углы
+            magic_square[n//2, n//2] +  # центр
+            magic_square[0, n-1] * magic_square[n-1, 0]    # противоположные углы
+        )
+        
+        # Комбинируем все методы
+        final_seed = (total_sum + diag_product + special_values) & 0xFFFFFFFF
+        
+        return final_seed
 
-        sub_table = self.create_substitution_table(key)
+    def apply_substitution(self, text: str, magic_square) -> str:
+        """Применение подстановки к тексту"""
+        sub_table = self.create_substitution_table_from_magic_square(magic_square)
         result = []
 
         for char in text:
@@ -120,12 +137,9 @@ class MagicSquareCipher:
 
         return "".join(result)
 
-    def reverse_substitution(self, text: str, key: str) -> str:
+    def reverse_substitution(self, text: str, magic_square) -> str:
         """Обратная подстановка"""
-        if not key:
-            return text
-
-        sub_table = self.create_substitution_table(key)
+        sub_table = self.create_substitution_table_from_magic_square(magic_square)
         reverse_table = {v: k for k, v in sub_table.items()}
         result = []
 
@@ -137,11 +151,13 @@ class MagicSquareCipher:
 
         return "".join(result)
 
-    def encrypt(self, plaintext: str, n: int, substitution_key: str = "") -> str:
+    def encrypt(self, plaintext: str, n: int, use_sub: bool) -> str:
         """Шифрование текста"""
+        magic_square = self.generate_magic_square(n)
+
         # Применение подстановки (модификация)
-        if substitution_key:
-            plaintext = self.apply_substitution(plaintext, substitution_key)
+        if use_sub:
+            plaintext = self.apply_substitution(plaintext, magic_square)
 
         # Дополнение текста
         required_length = n * n
@@ -151,7 +167,6 @@ class MagicSquareCipher:
             plaintext = plaintext[:required_length]
 
         # Генерация магического квадрата
-        magic_square = self.generate_magic_square(n)
 
         # Размещение символов в матрице
         text_matrix = np.array(list(plaintext)).reshape(n, n)
@@ -165,7 +180,7 @@ class MagicSquareCipher:
 
         return "".join(encrypted)
 
-    def decrypt(self, ciphertext: str, n: int, substitution_key: str = "") -> str:
+    def decrypt(self, ciphertext: str, n: int, use_sub: bool) -> str:
         """Расшифрование текста"""
         if len(ciphertext) != n * n:
             raise ValueError(f"Длина шифротекста должна быть {n * n}")
@@ -188,7 +203,7 @@ class MagicSquareCipher:
         decrypted = decrypted.rstrip(self.padding_char)
 
         # Обратная подстановка (модификация)
-        if substitution_key:
-            decrypted = self.reverse_substitution(decrypted, substitution_key)
+        if use_sub:
+            decrypted = self.reverse_substitution(decrypted, magic_square)
 
         return decrypted

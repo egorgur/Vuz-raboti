@@ -23,6 +23,7 @@ pytest = "^8.3.5"
 pyclip = "^0.7.0"
 yellowbrick = "^1.5"
 ipdb = "^0.13.13"
+pygobject = "^3.54.3"
 
 
 [build-system]

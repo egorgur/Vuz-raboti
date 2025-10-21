@@ -27,15 +27,6 @@ class CipherGUI:
         self.notebook.add(self.encrypt_frame, text="Шифрование/Расшифрование")
         self.create_encrypt_tab()
 
-        # Вкладка тестирования
-        self.test_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.test_frame, text="Тестирование")
-        self.create_test_tab()
-
-        # Вкладка анализа
-        self.analysis_frame = ttk.Frame(self.notebook)
-        self.notebook.add(self.analysis_frame, text="Анализ криптостойкости")
-        self.create_analysis_tab()
 
     def create_encrypt_tab(self):
         """Создание вкладки шифрования"""
@@ -107,7 +98,7 @@ class CipherGUI:
         info_frame = ttk.LabelFrame(self.encrypt_frame, text="Информация", padding=10)
         info_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
 
-        self.info_label = ttk.Label(info_frame, text="Готов к работе")
+        self.info_label = ttk.Label(info_frame, text=".....")
         self.info_label.pack()
 
         # Настройка весов
