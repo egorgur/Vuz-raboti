@@ -1,32 +1,32 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>&#13;
-	<type>grammar</type>&#13;
-	<!--The list of productions.-->&#13;
-	<production>&#13;
-		<left>S</left>&#13;
-		<right>bS</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>S</left>&#13;
-		<right>aA</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>S</left>&#13;
-		<right>ε</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>A</left>&#13;
-		<right>bA</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>A</left>&#13;
-		<right>aB</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>B</left>&#13;
-		<right>bB</right>&#13;
-	</production>&#13;
-	<production>&#13;
-		<left>B</left>&#13;
-		<right>aS</right>&#13;
-	</production>&#13;
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>grammar</type>
+	<!--The list of productions.-->
+	<production>
+		<left>S</left>
+		<right>bS</right>
+	</production>
+	<production>
+		<left>S</left>
+		<right/>
+	</production>
+	<production>
+		<left>S</left>
+		<right>aA</right>
+	</production>
+	<production>
+		<left>A</left>
+		<right>aB</right>
+	</production>
+	<production>
+		<left>B</left>
+		<right>aS</right>
+	</production>
+	<production>
+		<left>A</left>
+		<right>bA</right>
+	</production>
+	<production>
+		<left>B</left>
+		<right>bB</right>
+	</production>
 </structure>
