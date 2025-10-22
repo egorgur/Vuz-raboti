@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>&#13;
+	<type>regular pumping lemma</type>&#13;
+	<name>a^n : n is even</name>&#13;
+	<first_player>Human</first_player>&#13;
+	<m>2</m>&#13;
+	<w>aa</w>&#13;
+	<i>2</i>&#13;
+	<xLength>0</xLength>&#13;
+	<yLength>2</yLength>&#13;
+	<attempt>X = a;   Y = a;   Z = λ; I = 2; &lt;i&gt;Failed&lt;/i&gt;</attempt>&#13;
+	<attempt>X = λ;   Y = a;   Z = a; I = 0; &lt;i&gt;Failed&lt;/i&gt;</attempt>&#13;
+	<attempt>X = λ;   Y = aa;   Z = λ; I = 2; &lt;i&gt;Won&lt;/i&gt;</attempt>&#13;
+</structure>
