@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--Created by JFLAP-->
+<structure>
+	<type>grammar</type>
+	<production>
+		<left>S</left>
+		<right>aSbb</right>
+	</production>
+	<production>
+		<left>S</left>
+		<right>aSbbb</right>
+	</production>
+	<production>
+		<left>S</left>
+		<right/>
+	</production>
+</structure>
