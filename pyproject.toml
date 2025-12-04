@@ -24,6 +24,7 @@ pyclip = "^0.7.0"
 yellowbrick = "^1.5"
 ipdb = "^0.13.13"
 pygobject = "^3.54.3"
+pulp = "^3.3.0"
 
 
 [build-system]

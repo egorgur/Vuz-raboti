@@ -140,11 +140,13 @@ class VigenereCrackerLogic:
         return "".join(restored_text)
 
     # --- ТЕСТ КАСИСКИ И IC ---
-    def _kassiski_test(self, ciphertext, max_key_len=10, min_seq_len=3):
-        # Реализация теста Касиски
+    def _kassiski_test(self, ciphertext, max_key_len=20, min_seq_len=3):
+        # Увеличиваем max_key_len до 20
         n = len(ciphertext)
         repetitions = {}
-        for length in range(min_seq_len, 8):
+        
+        # Ищем более длинные последовательности
+        for length in range(min_seq_len, 6):  # Увеличиваем до 6
             for i in range(n - length + 1):
                 sequence = ciphertext[i : i + length]
                 if sequence not in repetitions:
@@ -156,11 +158,20 @@ class VigenereCrackerLogic:
             for seq, positions in repetitions.items()
             if len(positions) > 1
         }
+        
+        # Выводим отладочную информацию
+        if repeating_sequences:
+            print(f"Найдено повторяющихся последовательностей: {len(repeating_sequences)}")
+            for seq, positions in list(repeating_sequences.items())[:5]:
+                print(f"  '{seq}': позиции {positions}")
+        
         differences = []
         for seq, positions in repeating_sequences.items():
             for i in range(len(positions) - 1):
                 differences.append(positions[i + 1] - positions[i])
+        
         if not differences:
+            print("Нет различий между позициями повторяющихся последовательностей")
             return []
 
         divisor_counts = Counter()
@@ -168,146 +179,261 @@ class VigenereCrackerLogic:
             for i in range(1, int(math.sqrt(diff)) + 1):
                 if diff % i == 0:
                     for d in [i, diff // i]:
-                        # проверка на длину делителя(подходящего ключа)
                         if d > 1 and d <= max_key_len:
                             divisor_counts[d] += 1
-        return divisor_counts.most_common(5)
+        
+        # Сортируем по количеству вхождений
+        most_common = divisor_counts.most_common(10)
+        
+        if most_common:
+            print(f"Кандидаты Касиски: {most_common}")
+        
+        return most_common
 
     def _verify_key_length_ic(self, ciphertext, key_length):
         columns = [ciphertext[i::key_length] for i in range(key_length)]
         avg_ic = sum(self._calculate_ic(col) for col in columns) / key_length
         ic_difference = abs(avg_ic - self.expected_ic)
-        return avg_ic, ic_difference < 0.02
+        return avg_ic, ic_difference < 0.03
 
     def _find_key_length(self, ciphertext):
         output = []
         best_m = 0
-
+        best_ic_diff = float("inf")
+        
         output.append("--- 1. Тест Касиски и IC: Определение длины ключа (m) ---")
-
-        key_candidates = self._kassiski_test(ciphertext)
-
-        if not key_candidates:
-            output.append("Тест Касиски не дал результатов. Переход к полному подбору.")
-            candidate_lengths = [(m, 0) for m in range(2, 16)]
-        else:
-            output.append(
-                "Кандидаты Касиски (топ-5): "
-                + ", ".join(f"m={m}" for m, c in key_candidates)
-            )
-            candidate_lengths = key_candidates
-
-        for m, _ in candidate_lengths:
+        
+        # СНАЧАЛА проверим длины 3, 4, 5, 6, 7 (самые вероятные)
+        output.append("\n--- Проверка наиболее вероятных длин ---")
+        for m in [3, 4, 5, 6, 7, 8, 9, 10]:
             avg_ic, is_confirmed = self._verify_key_length_ic(ciphertext, m)
-            status = "ПОДТВЕРЖДЕН" if is_confirmed else "НЕ ПОДТВЕРЖДЕН"
-            output.append(f"  m={m}: IC={avg_ic:.5f} ({status})")
-            if is_confirmed:
+            ic_diff = abs(avg_ic - self.expected_ic)
+            output.append(f"  m={m}: IC={avg_ic:.5f}, diff={ic_diff:.5f} (ожидаемый: {self.expected_ic:.5f})")
+            
+            if ic_diff < best_ic_diff:
+                best_ic_diff = ic_diff
                 best_m = m
-                break
-
-        if best_m == 0:
-            output.append(
-                "\nIC не подтвержден. Выполняется подбор лучшего IC (m=2..15)..."
-            )
-            best_ic_diff = float("inf")
-
-            for m in range(2, 16):
-                avg_ic = sum(self._calculate_ic(ciphertext[i::m]) for i in range(m)) / m
-                ic_diff = abs(avg_ic - self.expected_ic)
-                if ic_diff < best_ic_diff:
-                    best_ic_diff = ic_diff
-                    best_m = m
-
-            if best_m > 0:
-                output.append(
-                    f"Подбором выбрана длина: **m = {best_m}** (Avg IC: {self._verify_key_length_ic(ciphertext, best_m)[0]:.5f})"
-                )
-            else:
-                output.append(
-                    "Не удалось найти подходящую длину ключа в диапазоне 2-15."
-                )
-
+        
+        # Теперь тест Касиски
+        key_candidates = self._kassiski_test(ciphertext)
+        
+        if key_candidates:
+            output.append("\n--- Кандидаты Касиски ---")
+            for m, count in key_candidates[:10]:
+                # Проверяем, если еще не проверяли
+                if m not in [3, 4, 5, 6, 7, 8, 9, 10]:
+                    avg_ic, is_confirmed = self._verify_key_length_ic(ciphertext, m)
+                    ic_diff = abs(avg_ic - self.expected_ic)
+                    output.append(f"  m={m}: IC={avg_ic:.5f}, diff={ic_diff:.5f} (вес Касиски: {count})")
+                    
+                    if ic_diff < best_ic_diff:
+                        best_ic_diff = ic_diff
+                        best_m = m
+        
+        output.append(f"\n✅ Выбрана длина ключа: m={best_m} (diff IC: {best_ic_diff:.5f})")
+        
         self.output_text = "\n".join(output)
         return best_m
 
     # --- МЕТОДЫ MIC И АНАЛИЗ КЛЮЧА ---
-    def _calculate_mic(self, text1, text2, shift_2):
+    def _calculate_mic(self, text1, text2, shift):
+        """
+        Вычисляет взаимный индекс совпадения (MIC) для двух текстов
+        при сдвиге shift для text2 относительно text1.
+
+        shift: на сколько сдвинут алфавит для text2 относительно text1
+        """
         n1 = len(text1)
         n2 = len(text2)
+
         if n1 == 0 or n2 == 0:
             return 0.0
-        counts1 = Counter(text1)
-        counts2 = Counter(text2)
+
+        # Подсчитываем частоты символов
+        freq1 = [0] * self.size
+        freq2 = [0] * self.size
+
+        for char in text1:
+            freq1[self.char_to_index[char]] += 1
+
+        for char in text2:
+            freq2[self.char_to_index[char]] += 1
+
+        # Вычисляем MIC: сумма freq1[i] * freq2[(i+shift) mod N]
         mic_sum = 0
         for i in range(self.size):
-            char1 = self.index_to_char[i]
-            shifted_index = (i - shift_2) % self.size
-            char2_shifted = self.index_to_char[shifted_index]
-            mic_sum += counts1[char1] * counts2[char2_shifted]
+            j = (
+                i + shift
+            ) % self.size  # СИМВОЛ text2 СДВИНУТ НА shift ОТНОСИТЕЛЬНО text1
+            mic_sum += freq1[i] * freq2[j]
+
         return mic_sum / (n1 * n2)
 
     def analyze_key(self, ciphertext, key_length):
         output = []
         columns = [ciphertext[i::key_length] for i in range(key_length)]
-        column_1 = columns[0]
-        relative_shifts = {1: 0}
 
         output.append(
             f"\n--- 2. MIC: Определение относительных сдвигов для m={key_length} ---"
         )
 
-        for i in range(1, key_length):
-            column_i = columns[i]
+        # Находим относительные сдвиги всех столбцов относительно первого
+        relative_shifts = [0] * key_length  # relative_shifts[0] = 0
+
+        for col_idx in range(1, key_length):
             best_mic = 0.0
             best_shift = 0
+
+            # Ищем сдвиг, который дает максимальный MIC
+            # shift = (key1 - key_col) mod N
             for shift in range(self.size):
-                mic = self._calculate_mic(column_1, column_i, shift)
+                mic = self._calculate_mic(columns[0], columns[col_idx], shift)
                 if mic > best_mic:
                     best_mic = mic
                     best_shift = shift
 
+            relative_shifts[col_idx] = best_shift
             output.append(
-                f"  - Столбец {i + 1}: Относительный сдвиг **{best_shift}** (MIC={best_mic:.5f})"
+                f"  - Столбец {col_idx + 1}: Относительный сдвиг **{best_shift}** (MIC={best_mic:.5f})"
             )
-            relative_shifts[i + 1] = best_shift
+            output.append(f"    (Текст столбца: {columns[col_idx][:50]}...)")
 
+        # Теперь перебираем возможные значения первого символа ключа
         all_key_results = []
-        for g1_shift in range(self.size):
+
+        for first_key_char_idx in range(self.size):
+            # Строим ключ на основе относительных сдвигов
             key = ""
-            for i in range(1, key_length + 1):
-                g_i_shift = (g1_shift - relative_shifts[i]) % self.size
-                key += self.index_to_char[g_i_shift]
-            print(key)
+            for col_idx in range(key_length):
+                if col_idx == 0:
+                    # Первый символ ключа
+                    key_char_idx = first_key_char_idx
+                else:
+                    # Для остальных столбцов: key_col = (key1 - relative_shift) mod N
+                    key_char_idx = (
+                        first_key_char_idx - relative_shifts[col_idx]
+                    ) % self.size
 
-            decrypted_clean_text = self._decrypt(
-                ciphertext, key
-            )  # Получаем чистый текст
+                key += self.index_to_char[key_char_idx]
 
-            full_text_counts = Counter(decrypted_clean_text)
-            ordered_frequency_vector = [
-                full_text_counts[char] for char in self.alphabet
-            ]
-            chi_squared_val = self._calculate_chi_squared(
-                ordered_frequency_vector, len(decrypted_clean_text)
-            )
+            # Расшифровываем текст этим ключом
+            decrypted_clean_text = self._decrypt(ciphertext, key)
+
+            # Вычисляем chi-squared статистику
+            freq_vector = [0] * self.size
+            for char in decrypted_clean_text:
+                freq_vector[self.char_to_index[char]] += 1
+
+            chi2 = self._calculate_chi_squared(freq_vector, len(decrypted_clean_text))
 
             all_key_results.append(
                 {
                     "key": key,
-                    "chi2": chi_squared_val,
-                    # !!! КЛЮЧЕВОЙ МОМЕНТ: Сохраняем чистый текст под нужным ключом
+                    "chi2": chi2,
                     "decrypted_clean_text": decrypted_clean_text,
-                    "g1_shift": g1_shift,
+                    "first_key_idx": first_key_char_idx,
                 }
             )
 
-        print(all_key_results)
+        # Сортируем по chi-squared (меньше = лучше)
+        all_key_results.sort(key=lambda x: x["chi2"])
+        self.last_key_results = all_key_results
+
+        # Выводим отладочную информацию
+        output.append("\n--- Топ-10 кандидатов ключа ---")
+        for i, res in enumerate(all_key_results[:10]):
+            # Показываем начало расшифрованного текста
+            preview = res["decrypted_clean_text"][:50].replace("\n", " ")
+            output.append(f"{i + 1}. Ключ '{res['key']}': chi2={res['chi2']:.2f}")
+            output.append(f"   Начало текста: {preview}...")
+
+        self.output_text += "\n" + "\n".join(output)
+        return all_key_results[:5]
+
+    def analyze_key_alternative(self, ciphertext, key_length):
+        """
+        Альтернативный метод: используем частотный анализ каждого столбца отдельно.
+        """
+        output = []
+        columns = [ciphertext[i::key_length] for i in range(key_length)]
+
+        output.append(f"\n--- Альтернативный анализ ключа (m={key_length}) ---")
+
+        # Для каждого столбца находим наиболее вероятный сдвиг
+        column_shifts = []
+        for col_idx, column in enumerate(columns):
+            shift = self._frequency_analysis_column(column)
+            column_shifts.append(shift)
+            output.append(
+                f"  Столбец {col_idx + 1}: вероятный сдвиг = {shift} "
+                f"(символ: '{self.index_to_char[shift]}')"
+            )
+
+        # Преобразуем сдвиги в ключ
+        key = "".join(self.index_to_char[s] for s in column_shifts)
+
+        # Расшифровываем
+        decrypted_clean_text = self._decrypt(ciphertext, key)
+
+        output.append(f"\n  Полученный ключ: '{key}'")
+        output.append(f"  Начало текста: {decrypted_clean_text[:100]}...")
+
+        # Также пробуем варианты со сдвигом всего ключа
+        all_key_results = []
+        for shift in range(self.size):
+            shifted_key = ""
+            for s in column_shifts:
+                shifted_s = (s + shift) % self.size
+                shifted_key += self.index_to_char[shifted_s]
+
+            decrypted = self._decrypt(ciphertext, shifted_key)
+            freq = [0] * self.size
+            for char in decrypted:
+                freq[self.char_to_index[char]] += 1
+
+            chi2 = self._calculate_chi_squared(freq, len(decrypted))
+
+            all_key_results.append(
+                {"key": shifted_key, "chi2": chi2, "decrypted_clean_text": decrypted}
+            )
 
         all_key_results.sort(key=lambda x: x["chi2"])
         self.last_key_results = all_key_results
-        self.output_text += "\n" + "\n".join(output)
 
+        self.output_text += "\n" + "\n".join(output)
         return all_key_results[:5]
+
+    def _frequency_analysis_column(self, column_text):
+        """
+        Частотный анализ одного столбца для определения сдвига.
+        Возвращает наиболее вероятный сдвиг.
+        """
+        n = len(column_text)
+        if n == 0:
+            return 0
+
+        # Подсчитываем частоты символов в столбце
+        freq = [0] * self.size
+        for char in column_text:
+            freq[self.char_to_index[char]] += 1
+
+        # Ищем сдвиг, который дает наилучшее соответствие частотам русского языка
+        best_shift = 0
+        best_correlation = float("inf")
+
+        for shift in range(self.size):
+            correlation = 0
+            for i in range(self.size):
+                expected = self.frequencies[i] * n
+                observed = freq[(i + shift) % self.size]  # Сдвинутый символ
+                if expected > 0:
+                    correlation += (observed - expected) ** 2 / expected
+
+            if correlation < best_correlation:
+                best_correlation = correlation
+                best_shift = shift
+
+        return best_shift
 
 
 # --- КЛАСС ГРАФИЧЕСКОГО ИНТЕРФЕЙСА (GUI) ---
@@ -436,98 +562,203 @@ class VigenereCrackerGUI:
     def run_analysis(self):
         """Обрабатывает нажатие кнопки "АНАЛИЗИРОВАТЬ"."""
         raw_ciphertext = self.cipher_input.get("1.0", tk.END).strip()
-
+        
         if not raw_ciphertext:
             messagebox.showerror("Ошибка", "Введите шифротекст для анализа.")
             return
-
+        
         # Очистка и сохранение структуры пунктуации
         cleaned_ciphertext = self.cracker_logic._clean_ciphertext(raw_ciphertext)
         self.cracker_logic.cleaned_ciphertext = cleaned_ciphertext
-
-        if len(cleaned_ciphertext) < 50:
+        
+        if len(cleaned_ciphertext) < 100:
             messagebox.showwarning(
                 "Внимание",
-                "Текст слишком короткий (<50 символов) для надежного анализа.",
+                f"Текст содержит только {len(cleaned_ciphertext)} букв. "
+                "Для надежного анализа рекомендуется текст от 200 символов."
             )
-
+        
+        # Определяем длину ключа
         m = self.cracker_logic._find_key_length(cleaned_ciphertext)
-
+        
         if m == 0:
-            self.update_output(
-                self.cracker_logic.output_text
-                + "\n\nНе удалось определить длину ключа m."
-            )
+            # Если не определили, пробуем наиболее вероятные длины
+            m_candidates = [3, 4, 5, 6, 7, 8, 9, 10]
+            analysis_text = self.cracker_logic.output_text
+            analysis_text += "\n\nПробуем наиболее вероятные длины ключа:"
+            
+            # Сохраняем ВСЕ результаты
+            all_results = []
+            
+            for m_candidate in m_candidates:
+                if m_candidate * 5 < len(cleaned_ciphertext):
+                    # Пробуем оба метода анализа
+                    analysis_text += f"\n\n--- Анализ для m={m_candidate} ---"
+                    
+                    # Метод 1: MIC
+                    results1 = self.cracker_logic.analyze_key(cleaned_ciphertext, m_candidate)
+                    analysis_text += f"\nМетод MIC (топ-3):"
+                    for i, res in enumerate(results1[:3]):
+                        analysis_text += f"\n  {i+1}. '{res['key']}' (chi2={res['chi2']:.1f})"
+                        all_results.append(res)  # Сохраняем результат
+                    
+                    # Метод 2: Частотный анализ
+                    results2 = self.cracker_logic.analyze_key_alternative(cleaned_ciphertext, m_candidate)
+                    analysis_text += f"\nМетод частотного анализа (топ-3):"
+                    for i, res in enumerate(results2[:3]):
+                        analysis_text += f"\n  {i+1}. '{res['key']}' (chi2={res['chi2']:.1f})"
+                        all_results.append(res)  # Сохраняем результат
+            
+            # Сохраняем ВСЕ результаты
+            self.cracker_logic.last_key_results = all_results
+            
+            self.update_output(analysis_text)
+            
+            # Обновляем dropdown со ВСЕМИ результатами
+            self.update_dropdown_from_results(all_results[:20])  # Показываем первые 20
             return
-
-        top_results = self.cracker_logic.analyze_key(cleaned_ciphertext, m)
-
+        
+        # Используем оба метода анализа
         analysis_text = (
             self.cracker_logic.output_text
             + f"\n\nОкончательно выбрана длина ключа **m = {m}**"
         )
-        analysis_text += "\n\n--- 3. Топ-5 кандидатов ключа (по Chi-Squared) ---"
-
-        key_options_list = []
-        for i, res in enumerate(top_results):
-            option_str = f"Ключ: {res['key']} | Chi^2: {res['chi2']:.2f}"
-            analysis_text += f"\nВАРИАНТ #{i + 1}: {option_str} | g[1]={self.cracker_logic.index_to_char[res['g1_shift']]}"
-            key_options_list.append((option_str, res["key"]))
-
+        
+        # Метод MIC
+        top_results_mic = self.cracker_logic.analyze_key(cleaned_ciphertext, m)
+        analysis_text += "\n\n--- Метод MIC (топ-5) ---"
+        
+        # Сохраняем результаты MIC
+        all_results = list(top_results_mic)  # Копируем результаты MIC
+        
+        for i, res in enumerate(top_results_mic):
+            analysis_text += f"\n{i+1}. Ключ '{res['key']}': chi2={res['chi2']:.2f}"
+        
+        # Метод частотного анализа
+        top_results_freq = self.cracker_logic.analyze_key_alternative(cleaned_ciphertext, m)
+        analysis_text += "\n\n--- Метод частотного анализа (топ-5) ---"
+        
+        # Добавляем результаты частотного анализа
+        all_results.extend(top_results_freq)
+        
+        for i, res in enumerate(top_results_freq):
+            analysis_text += f"\n{i+1}. Ключ '{res['key']}': chi2={res['chi2']:.2f}"
+        
+        # Удаляем дубликаты ключей
+        unique_results = []
+        seen_keys = set()
+        for res in all_results:
+            if res["key"] not in seen_keys:
+                seen_keys.add(res["key"])
+                unique_results.append(res)
+        
+        # Сортируем по chi2
+        unique_results.sort(key=lambda x: x["chi2"])
+        
+        # Сохраняем ВСЕ уникальные результаты
+        self.cracker_logic.last_key_results = unique_results
+        
         self.update_output(analysis_text)
-
-        self.current_key_results = key_options_list
-        menu = self.key_dropdown["menu"]
-        menu.delete(0, "end")
-        self.key_options.set("Выберите ключ для расшифровки")
-        for option_str, key in key_options_list:
-            menu.add_command(
-                label=option_str, command=tk._setit(self.key_options, option_str)
-            )
+        
+        # Обновляем dropdown
+        self.update_dropdown_from_results(unique_results[:20])  # Показываем первые 20
 
     def run_decryption(self):
         """Обрабатывает нажатие кнопки "РАСШИФРОВАТЬ"."""
-        selected_option = self.key_options.get()
-
-        if (
-            "Выберите ключ" in selected_option
-            or not self.cracker_logic.cleaned_ciphertext
-            or not self.cracker_logic.last_key_results
-        ):
-            messagebox.showerror(
-                "Ошибка", "Сначала проведите анализ и выберите ключ из списка."
-            )
+        # Вариант 1: Используем selected_key если он установлен
+        if hasattr(self, 'selected_key') and self.selected_key:
+            key_to_use = self.selected_key
+        else:
+            # Вариант 2: Извлекаем ключ из выбранной опции
+            selected_option = self.key_options.get()
+            
+            if "Выбран: " in selected_option:
+                key_to_use = selected_option.replace("Выбран: ", "").strip()
+            elif "Выберите ключ" in selected_option:
+                messagebox.showerror("Ошибка", "Сначала выберите ключ из списка.")
+                return
+            else:
+                # Пытаемся извлечь ключ
+                key_to_use = self.extract_key_from_string(selected_option)
+        
+        if not key_to_use or not self.cracker_logic.last_key_results:
+            messagebox.showerror("Ошибка", "Не удалось определить ключ или нет результатов.")
             return
-
-        key_to_use = None
+        
+        # Ищем ключ в результатах
         decrypted_clean_text = None
-
-        # Извлекаем ключ из выбранной строки (например, "Ключ: СЛОВО | Chi^2: 123.45")
-        selected_key_str = selected_option.split(" | Chi^2:")[0].replace("Ключ: ", "")
-
-        # Ищем в полных результатах ключ и соответствующий ему чистый текст
+        found_result = None
+        
         for res in self.cracker_logic.last_key_results:
-            if res["key"] == selected_key_str:
-                key_to_use = res["key"]
-                # !!! ИСПРАВЛЕНИЕ: Используем 'decrypted_clean_text'
-                decrypted_clean_text = res["decrypted_clean_text"]
+            if res["key"] == key_to_use:
+                found_result = res
                 break
-
-        if key_to_use is None:
+        
+        if not found_result:
+            # Показываем доступные ключи
+            available_keys = [res["key"] for res in self.cracker_logic.last_key_results[:10]]
             messagebox.showerror(
-                "Ошибка", "Не удалось найти ключ в результатах. Повторите анализ."
+                "Ошибка",
+                f"Ключ '{key_to_use}' не найден.\n\nДоступные ключи:\n" + 
+                "\n".join(available_keys)
             )
             return
-
-        # Восстановление пунктуации и пробелов
+        
+        # Восстановление пунктуации
         decrypted_text_with_punc = self.cracker_logic._restore_punctuation(
-            decrypted_clean_text
+            found_result["decrypted_clean_text"]
         )
-
+        
         # Вывод
         self.update_decrypted_output(
-            f"ИСПОЛЬЗУЕМЫЙ КЛЮЧ: {key_to_use}\n\n" + decrypted_text_with_punc
+            f"КЛЮЧ: {found_result['key']} (χ²={found_result['chi2']:.2f})\n\n" + 
+            decrypted_text_with_punc
         )
+    
+    def extract_key_from_string(self, text):
+        """Извлекает ключ из строки."""
+        import re
+        # Ищем последовательность русских букв
+        matches = re.findall(r'[А-ЯЁ]{2,}', text)
+        if matches:
+            return matches[0]
+        
+        # Ищем ключ в формате "1. КЛЮЧ (χ²=...)"
+        parts = text.split()
+        for part in parts:
+            if all(c in self.cracker_logic.alphabet for c in part):
+                return part
+        
+        return None
+    
+    def select_key_directly(self, key):
+        """Прямой выбор ключа."""
+        self.key_options.set(f"Выбран: {key}")
+        self.selected_key = key  # Сохраняем выбранный ключ
+        print(f"Выбран ключ: {key}")
+    
+    def update_dropdown_from_results(self, results):
+        """Обновляет dropdown меню из списка результатов."""
+        self.current_key_results = []
+        menu = self.key_dropdown["menu"]
+        menu.delete(0, "end")
+        self.key_options.set("Выберите ключ для расшифровки")
+        
+        for i, res in enumerate(results):
+            # Создаем строку для отображения
+            if len(res["key"]) > 10:
+                display_key = res["key"][:10] + "..."
+            else:
+                display_key = res["key"]
+            
+            option_str = f"{i+1}. {display_key} (χ²={res['chi2']:.1f})"
+            
+            # Сохраняем полный ключ в команде
+            menu.add_command(
+                label=option_str,
+                command=lambda k=res["key"]: self.select_key_directly(k)
+            )
+            self.current_key_results.append((res["key"], res["chi2"]))
 
 
 # --- ГЛАВНАЯ ФУНКЦИЯ ЗАПУСКА ---
