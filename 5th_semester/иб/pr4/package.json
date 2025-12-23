@@ -1,0 +1,29 @@
+{
+  "name": "ikit-is-pw4",
+  "version": "1.0.0",
+  "description": "Безопасное web-приложение для практической работы по информационной безопасности",
+  "main": "server.js",
+  "keywords": [
+    "security",
+    "authentication",
+    "authorization"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "autoprefixer": "^10.4.23",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "fs-extra": "^11.2.0",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "sql.js": "^1.10.3",
+    "tailwindcss": "^4.1.18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "create-admin": "node create-admin.js"
+  }
+}

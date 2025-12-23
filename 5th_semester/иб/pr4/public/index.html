@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система управления задачами</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <i class="fas fa-tasks header-icon"></i>
+                    <h1>Система управления задачами</h1>
+                </div>
+                <div id="user-info" class="user-info" style="display: none;">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span id="username-display" class="username"></span>
+                        <div class="user-role">
+                            <span id="role-badge" class="role-badge"></span>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="btn btn-ghost btn-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Форма входа/регистрации -->
+            <div id="auth-section" class="auth-section">
+                <div class="auth-card">
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" data-tab="login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Вход
+                        </button>
+                        <button class="tab-btn" data-tab="register">
+                            <i class="fas fa-user-plus"></i>
+                            Регистрация
+                        </button>
+                    </div>
+
+                    <div class="auth-content">
+                        <form id="login-form" class="auth-form">
+                            <div class="form-header">
+                                <h2 class="form-title">Вход в систему</h2>
+                                <p class="form-description">Введите свои данные для входа в систему</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-username" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Имя пользователя
+                                </label>
+                                <input type="text" id="login-username" name="username" class="form-input" required minlength="3" maxlength="20" placeholder="Введите имя пользователя">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="login-password" class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Пароль
+                                </label>
+                                <input type="password" id="login-password" name="password" class="form-input" required minlength="6" placeholder="Введите пароль">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Войти
+                            </button>
+                            
+                            <div id="login-error" class="form-error"></div>
+                        </form>
+
+                        <form id="register-form" class="auth-form" style="display: none;">
+                            <div class="form-header">
+                                <h2 class="form-title">Регистрация</h2>
+                                <p class="form-description">Создайте новый аккаунт</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-username" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Имя пользователя
+                                </label>
+                                <input type="text" id="register-username" name="username" class="form-input" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_]+" placeholder="Введите имя пользователя">
+                                <div class="form-hint">Только буквы, цифры и подчёркивание</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-password" class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Пароль
+                                </label>
+                                <input type="password" id="register-password" name="password" class="form-input" required minlength="6" placeholder="Введите пароль">
+                                <div class="form-hint">Минимум 6 символов</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="register-password-confirm" class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Подтверждение пароля
+                                </label>
+                                <input type="password" id="register-password-confirm" name="password-confirm" class="form-input" required minlength="6" placeholder="Повторите пароль">
+                                <div class="form-hint">Повторите пароль</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-user-plus"></i>
+                                Зарегистрироваться
+                            </button>
+                            
+                            <div id="register-error" class="form-error"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основное приложение -->
+            <div id="app-section" class="app-section" style="display: none;">
+                <div class="app-header">
+                    <div class="app-header-content">
+                        <div class="app-title-section">
+                            <h2 id="tasks-title" class="app-title">
+                                <i class="fas fa-tasks"></i>
+                                Мои задачи
+                            </h2>
+                            <div id="task-count" class="task-count">0 задач</div>
+                        </div>
+                        
+                        <div class="app-actions">
+                            <button id="admin-view-btn" class="btn btn-outline" style="display: none;">
+                                <i class="fas fa-crown"></i>
+                                Все задачи (админ)
+                            </button>
+                            <button id="add-task-btn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Добавить задачу
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Поля поиска для админки -->
+                <div id="admin-search" class="admin-search" style="display: none;">
+                    <div class="search-card">
+                        <div class="search-header">
+                            <i class="fas fa-search"></i>
+                            <h3>Поиск задач</h3>
+                        </div>
+                        <div class="search-fields">
+                            <div class="form-group">
+                                <label for="search-username" class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Имя пользователя
+                                </label>
+                                <input type="text" id="search-username" class="form-input" placeholder="Введите имя пользователя">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="search-task" class="form-label">
+                                    <i class="fas fa-tasks"></i>
+                                    Название задачи
+                                </label>
+                                <input type="text" id="search-task" class="form-input" placeholder="Введите название задачи">
+                            </div>
+                            
+                            <div class="search-actions">
+                                <button id="search-btn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                    Поиск
+                                </button>
+                                <button id="clear-search-btn" class="btn btn-outline">
+                                    <i class="fas fa-times"></i>
+                                    Очистить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tasks-container" class="tasks-container">
+                    <div class="empty-state">
+                        <i class="fas fa-tasks empty-icon"></i>
+                        <h3>Нет задач</h3>
+                        <p>Нажмите "Добавить задачу" чтобы создать первую задачу</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Модальное окно для добавления/редактирования задачи -->
+        <div id="task-modal" class="modal" style="display: none;">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title" class="modal-title">
+                        <i class="fas fa-plus"></i>
+                        Добавить задачу
+                    </h2>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="task-form" class="modal-form">
+                    <input type="hidden" id="task-id">
+                    
+                    <div class="form-group">
+                        <label for="task-title" class="form-label">
+                            <i class="fas fa-heading"></i>
+                            Название задачи
+                        </label>
+                        <input type="text" id="task-title" class="form-input" required maxlength="200" placeholder="Введите название задачи">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="task-description" class="form-label">
+                            <i class="fas fa-align-left"></i>
+                            Описание
+                        </label>
+                        <textarea id="task-description" class="form-textarea" rows="4" maxlength="1000" placeholder="Введите описание задачи"></textarea>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label for="task-completed" class="checkbox-label">
+                            <input type="checkbox" id="task-completed" class="checkbox-input">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-text">Задача выполнена</span>
+                        </label>
+                    </div>
+                    
+                    <div id="task-error" class="form-error"></div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" id="cancel-btn">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Сохранить задачу
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
