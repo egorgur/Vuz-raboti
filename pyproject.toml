@@ -25,6 +25,10 @@ yellowbrick = "^1.5"
 ipdb = "^0.13.13"
 pygobject = "^3.54.3"
 pulp = "^3.3.0"
+fastapi = "^0.124.4"
+bcrypt = "^5.0.0"
+cryptography = "^46.0.3"
+crypto = "^1.4.1"
 
 
 [build-system]

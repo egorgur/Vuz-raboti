@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Notes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <h2>Заметки пользователя {{ user }}</h2>
+    <input type="text" id="noteText" placeholder="Секретная заметка">
+    <button onclick="sendNote()">Добавить (DH + AES)</button>
+
+    <ul>
+        {% for note in notes %}
+        <li>{{ note.content }} <button onclick="deleteNote({{note.id}})">X</button></li>
+        {% endfor %}
+    </ul>
+
+    <script>
+        async function sendNote() {
+            // 1. Получаем параметры DH от сервера
+            const res = await fetch('/dh-params');
+            const params = await res.json();
+            const P = BigInt(params.p);
+            const G = BigInt(params.g);
+            const serverPub = BigInt(params.pub);
+
+            // 2. Генерируем свои ключи
+            const clientPriv = BigInt(Math.floor(Math.random() * 1000000));
+            const clientPub = power(G, clientPriv, P);
+
+            // 3. Вычисляем общий секрет
+            const sharedSecret = power(serverPub, clientPriv, P).toString();
+            const aesKey = CryptoJS.SHA256(sharedSecret);
+
+            // 4. Шифруем контент (AES-CBC)
+            const text = document.getElementById('noteText').value;
+            const iv = CryptoJS.lib.WordArray.random(16);
+            const encrypted = CryptoJS.AES.encrypt(text, aesKey, { iv: iv });
+            
+            // Склеиваем IV + Данные
+            const payload = iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
+
+            // 5. Отправка
+            await fetch('/notes/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    client_pub: clientPub.toString(16),
+                    encrypted_content: payload
+                })
+            });
+            location.reload();
+        }
+
+        function power(base, exp, mod) {
+            let res = 1n; base = base % mod;
+            while (exp > 0n) {
+                if (exp % 2n === 1n) res = (res * base) % mod;
+                base = (base * base) % mod; exp = exp / 2n;
+            }
+            return res;
+        }
+
+        async function deleteNote(id) {
+            await fetch(`/notes/${id}`, {method: 'DELETE'});
+            location.reload();
+        }
+    </script>
+</body>
+</html>
