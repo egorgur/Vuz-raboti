@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--Created with JFLAP 7.1.-->
+<structure>
+	<type>grammar</type>
+	<!--Программа -> список операторов -->
+	<production>
+		<left>P</left>
+		<right>S</right>
+	</production>
+	
+	<!-- Список операторов -->
+	<production>
+		<left>S</left>
+		<right>T</right>
+	</production>
+	<production>
+		<left>S</left>
+		<right>S ; T</right>
+	</production>
+	
+	<!-- Оператор присваивания -->
+	<production>
+		<left>T</left>
+		<right>I = E</right>
+	</production>
+	
+	<!-- Выражение -->
+	<production>
+		<left>E</left>
+		<right>A</right>
+	</production>
+	<production>
+		<left>E</left>
+		<right>I = E</right>
+	</production>
+	
+	<!-- Аддитивные выражения -->
+	<production>
+		<left>A</left>
+		<right>M</right>
+	</production>
+	<production>
+		<left>A</left>
+		<right>A + M</right>
+	</production>
+	<production>
+		<left>A</left>
+		<right>A - M</right>
+	</production>
+	
+	<!-- Мультипликативные выражения -->
+	<production>
+		<left>M</left>
+		<right>U</right>
+	</production>
+	<production>
+		<left>M</left>
+		<right>M * U</right>
+	</production>
+	<production>
+		<left>M</left>
+		<right>M / U</right>
+	</production>
+	
+	<!-- Унарные выражения и первичные -->
+	<production>
+		<left>U</left>
+		<right>F</right>
+	</production>
+	<production>
+		<left>U</left>
+		<right>- U</right>
+	</production>
+	<production>
+		<left>U</left>
+		<right>~ U</right>
+	</production>
+	
+	<!-- Первичные выражения -->
+	<production>
+		<left>F</left>
+		<right>I</right>
+	</production>
+	<production>
+		<left>F</left>
+		<right>C</right>
+	</production>
+	<production>
+		<left>F</left>
+		<right>( E )</right>
+	</production>
+	
+	<!-- Идентификаторы (переменные g-k) -->
+	<production>
+		<left>I</left>
+		<right>g</right>
+	</production>
+	<production>
+		<left>I</left>
+		<right>h</right>
+	</production>
+	<production>
+		<left>I</left>
+		<right>i</right>
+	</production>
+	<production>
+		<left>I</left>
+		<right>j</right>
+	</production>
+	<production>
+		<left>I</left>
+		<right>k</right>
+	</production>
+	
+	<!-- Константы -->
+	<production>
+		<left>C</left>
+		<right>OCT</right>
+	</production>
+	<production>
+		<left>C</left>
+		<right>HEX</right>
+	</production>
+	
+	<!-- 8-ричные константы -->
+	<production>
+		<left>OCT</left>
+		<right>0 DIGIT8</right>
+	</production>
+	<production>
+		<left>DIGIT8</left>
+		<right>D8</right>
+	</production>
+	<production>
+		<left>DIGIT8</left>
+		<right>DIGIT8 D8</right>
+	</production>
+	
+	<!-- 16-ричные константы -->
+	<production>
+		<left>HEX</left>
+		<right>0x DIGIT16</right>
+	</production>
+	<production>
+		<left>DIGIT16</left>
+		<right>D16</right>
+	</production>
+	<production>
+		<left>DIGIT16</left>
+		<right>DIGIT16 D16</right>
+	</production>
+	
+	<!-- 8-ричные цифры -->
+	<production>
+		<left>D8</left>
+		<right>0</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>1</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>2</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>3</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>4</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>5</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>6</right>
+	</production>
+	<production>
+		<left>D8</left>
+		<right>7</right>
+	</production>
+	
+	<!-- 16-ричные цифры -->
+	<production>
+		<left>D16</left>
+		<right>0</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>1</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>2</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>3</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>4</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>5</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>6</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>7</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>8</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>9</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>a</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>b</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>c</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>d</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>e</right>
+	</production>
+	<production>
+		<left>D16</left>
+		<right>f</right>
+	</production>
+</structure>
