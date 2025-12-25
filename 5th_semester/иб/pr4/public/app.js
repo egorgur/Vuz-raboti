@@ -1,16 +1,7 @@
-// app.js
-// Глобальное состояние приложения
 let currentUser = null;
 let csrfToken = null;
 let isAdminView = false;
 
-// ============================================
-// Модуль Диффи-Хеллмана для безопасной передачи данных
-// ============================================
-
-/**
- * Модульное возведение в степень (a^b mod m) для BigInt
- */
 function modPow(base, exponent, modulus) {
   if (modulus === BigInt(1)) return BigInt(0);
   
@@ -28,9 +19,6 @@ function modPow(base, exponent, modulus) {
   return result;
 }
 
-/**
- * Генерация случайного приватного ключа (256 бит)
- */
 function generatePrivateKey() {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
@@ -82,7 +70,6 @@ async function encryptData(data, keyBytes) {
     encodedData
   );
   
-  // Последние 16 байт - это authTag
   const encryptedArray = new Uint8Array(encryptedBuffer);
   const encrypted = encryptedArray.slice(0, -16);
   const authTag = encryptedArray.slice(-16);
@@ -94,11 +81,8 @@ async function encryptData(data, keyBytes) {
   };
 }
 
-/**
- * Безопасная отправка данных аутентификации через Диффи-Хеллман
- */
+
 async function secureAuthRequest(endpoint, credentials) {
-  // 1. Получаем параметры DH от сервера
   const keyExchangeResponse = await fetch('/api/auth/key-exchange');
   const keyData = await keyExchangeResponse.json();
   
@@ -106,22 +90,16 @@ async function secureAuthRequest(endpoint, credentials) {
   const g = BigInt(keyData.g);
   const serverPublicKey = BigInt('0x' + keyData.serverPublicKey);
   
-  // 2. Генерируем свой приватный ключ
   const clientPrivateKey = generatePrivateKey();
   
-  // 3. Вычисляем публичный ключ клиента
   const clientPublicKey = computePublicKey(clientPrivateKey, g, p);
   
-  // 4. Вычисляем общий секрет
   const sharedSecret = computeSharedSecret(serverPublicKey, clientPrivateKey, p);
   
-  // 5. Получаем ключ шифрования
   const encryptionKey = await deriveEncryptionKey(sharedSecret);
   
-  // 6. Шифруем данные
   const encryptedData = await encryptData(JSON.stringify(credentials), encryptionKey);
   
-  // 7. Отправляем зашифрованные данные
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -137,7 +115,6 @@ async function secureAuthRequest(endpoint, credentials) {
   return response;
 }
 
-// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     initAuthTabs();
     initAuthForms();
@@ -145,12 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminSearch();
     checkAuth();
     
-    // Добавляем глобальные функции для кнопок в задачах
     window.editTask = editTask;
     window.deleteTask = deleteTask;
 });
 
-// Переключение между вкладками входа и регистрации
 function initAuthTabs() {
     const tabs = document.querySelectorAll('.tab-btn');
     const loginForm = document.getElementById('login-form');
@@ -172,7 +147,6 @@ function initAuthTabs() {
     });
 }
 
-// Инициализация форм аутентификации
 function initAuthForms() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
@@ -190,7 +164,6 @@ function initAuthForms() {
         try {
             console.log('Отправка защищённого запроса входа (Диффи-Хеллман):', { username: credentials.username, password: '***' });
             
-            // Используем защищённый канал Диффи-Хеллмана
             const response = await secureAuthRequest('/api/auth/login', credentials);
             
             console.log('Ответ входа получен:', response.status, response.statusText);
@@ -219,8 +192,7 @@ function initAuthForms() {
         
         const password = document.getElementById('register-password').value;
         const passwordConfirm = document.getElementById('register-password-confirm').value;
-        
-        // Проверка совпадения паролей
+    
         if (password !== passwordConfirm) {
             errorDiv.textContent = 'Пароли не совпадают';
             return;
@@ -232,13 +204,11 @@ function initAuthForms() {
         };
         
         try {
-            // Логируем без пароля для безопасности
             console.log('Отправка защищённого запроса регистрации (Диффи-Хеллман):', {
                 username: credentials.username,
                 password: '***'
             });
             
-            // Используем защищённый канал Диффи-Хеллмана
             const response = await secureAuthRequest('/api/auth/register', credentials);
             
             console.log('Ответ регистрации получен:', response.status, response.statusText);
@@ -260,7 +230,6 @@ function initAuthForms() {
         }
     });
     
-    // Кнопка выхода
     document.getElementById('logout-btn').addEventListener('click', async () => {
         try {
             await fetch('/api/auth/logout', {
@@ -281,7 +250,6 @@ function initAuthForms() {
     });
 }
 
-// Проверка текущей аутентификации
 async function checkAuth() {
     try {
         const response = await fetch('/api/auth/me');
@@ -299,7 +267,6 @@ async function checkAuth() {
     }
 }
 
-// Получение CSRF токена
 async function getCsrfToken() {
     try {
         const response = await fetch('/api/auth/csrf-token');
@@ -312,14 +279,12 @@ async function getCsrfToken() {
     }
 }
 
-// Показать форму аутентификации
 function showAuth() {
     document.getElementById('auth-section').style.display = 'block';
     document.getElementById('app-section').style.display = 'none';
     document.getElementById('user-info').style.display = 'none';
 }
 
-// Показать основное приложение
 function showApp() {
     document.getElementById('auth-section').style.display = 'none';
     document.getElementById('app-section').style.display = 'block';
@@ -335,7 +300,6 @@ function showApp() {
     adminBtn.style.display = currentUser.role === 'admin' ? 'flex' : 'none';
     adminSearch.style.display = currentUser.role === 'admin' && isAdminView ? 'block' : 'none';
     
-    // Обновляем заголовок
     const tasksTitle = document.getElementById('tasks-title');
     if (isAdminView) {
         tasksTitle.innerHTML = '<i class="fas fa-crown"></i> Все задачи (админ)';
@@ -346,14 +310,12 @@ function showApp() {
     loadTasks();
 }
 
-// Загрузка задач
 async function loadTasks() {
     try {
         let endpoint = isAdminView && currentUser.role === 'admin' 
             ? '/api/tasks/admin/all' 
             : '/api/tasks';
-        
-        // Добавляем параметры поиска для админки
+    
         if (isAdminView && currentUser.role === 'admin') {
             const username = document.getElementById('search-username')?.value.trim() || '';
             const taskTitle = document.getElementById('search-task')?.value.trim() || '';
