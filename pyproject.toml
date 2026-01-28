@@ -29,6 +29,7 @@ fastapi = "^0.124.4"
 bcrypt = "^5.0.0"
 cryptography = "^46.0.3"
 crypto = "^1.4.1"
+ruff = "^0.14.14"
 
 
 [build-system]
