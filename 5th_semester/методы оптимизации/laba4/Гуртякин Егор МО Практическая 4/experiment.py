@@ -47,9 +47,8 @@ class GeneticAlgorithmExperiments:
         self.results = []
 
         for i, config in enumerate(configs):
-            if verbose:
-                print(f"\n=== Эксперимент {i + 1}/{len(configs)} ===")
-                print(f"Параметры: {config}")
+            print(f"\n=== Эксперимент {i + 1}/{len(configs)} ===")
+            print(f"Параметры: {config}")
 
             best_values = []
             histories = []
@@ -67,7 +66,7 @@ class GeneticAlgorithmExperiments:
                 best_solution, best_value = ga.run(
                     pop_size=config.get("pop_size", 30),
                     num_vars=len(self.bounds),
-                    generations=config.get("generations", 50),
+                    genфerations=config.get("generations", 50),
                     crossover_rate=config.get("crossover_rate", 0.8),
                     mutation_rate=config.get("mutation_rate", 1 / 64),
                     selection_method=config.get("selection_method", "rank"),

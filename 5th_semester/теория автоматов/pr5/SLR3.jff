@@ -2,84 +2,50 @@
 <!--Created with JFLAP 7.1.-->
 <structure>
 	<type>grammar</type>
-	<!--Программа -> список операторов -->
-	<production>
-		<left>P</left>
-		<right>S</right>
-	</production>
-	
-	<!-- Список операторов -->
+	<!--The list of productions.-->
 	<production>
 		<left>S</left>
-		<right>T</right>
+		<right>L</right>
 	</production>
 	<production>
-		<left>S</left>
-		<right>S ; T</right>
-	</production>
-	
-	<!-- Оператор присваивания -->
-	<production>
-		<left>T</left>
-		<right>I = E</right>
-	</production>
-	
-	<!-- Выражение -->
-	<production>
-		<left>E</left>
+		<left>L</left>
 		<right>A</right>
 	</production>
 	<production>
+		<left>L</left>
+		<right>L;A</right>
+	</production>
+	<production>
+		<left>A</left>
+		<right>V=E</right>
+	</production>
+	<production>
 		<left>E</left>
-		<right>I = E</right>
-	</production>
-	
-	<!-- Аддитивные выражения -->
-	<production>
-		<left>A</left>
-		<right>M</right>
+		<right>T</right>
 	</production>
 	<production>
-		<left>A</left>
-		<right>A + M</right>
+		<left>E</left>
+		<right>E|T</right>
 	</production>
 	<production>
-		<left>A</left>
-		<right>A - M</right>
-	</production>
-	
-	<!-- Мультипликативные выражения -->
-	<production>
-		<left>M</left>
+		<left>T</left>
 		<right>U</right>
 	</production>
 	<production>
-		<left>M</left>
-		<right>M * U</right>
+		<left>T</left>
+		<right>T&amp;U</right>
 	</production>
-	<production>
-		<left>M</left>
-		<right>M / U</right>
-	</production>
-	
-	<!-- Унарные выражения и первичные -->
 	<production>
 		<left>U</left>
 		<right>F</right>
 	</production>
 	<production>
 		<left>U</left>
-		<right>- U</right>
+		<right>~U</right>
 	</production>
-	<production>
-		<left>U</left>
-		<right>~ U</right>
-	</production>
-	
-	<!-- Первичные выражения -->
 	<production>
 		<left>F</left>
-		<right>I</right>
+		<right>V</right>
 	</production>
 	<production>
 		<left>F</left>
@@ -87,166 +53,194 @@
 	</production>
 	<production>
 		<left>F</left>
-		<right>( E )</right>
+		<right>(E)</right>
 	</production>
-	
-	<!-- Идентификаторы (переменные g-k) -->
 	<production>
-		<left>I</left>
+		<left>V</left>
 		<right>g</right>
 	</production>
 	<production>
-		<left>I</left>
+		<left>V</left>
 		<right>h</right>
 	</production>
 	<production>
-		<left>I</left>
+		<left>V</left>
 		<right>i</right>
 	</production>
 	<production>
-		<left>I</left>
+		<left>V</left>
 		<right>j</right>
 	</production>
 	<production>
-		<left>I</left>
+		<left>V</left>
 		<right>k</right>
 	</production>
 	
-	<!-- Константы -->
+	<!-- Константы: 0, троичная (0t...), шестнадцатеричная (0x...), десятичная -->
 	<production>
 		<left>C</left>
-		<right>OCT</right>
-	</production>
-	<production>
-		<left>C</left>
-		<right>HEX</right>
-	</production>
-	
-	<!-- 8-ричные константы -->
-	<production>
-		<left>OCT</left>
-		<right>0 DIGIT8</right>
-	</production>
-	<production>
-		<left>DIGIT8</left>
-		<right>D8</right>
-	</production>
-	<production>
-		<left>DIGIT8</left>
-		<right>DIGIT8 D8</right>
-	</production>
-	
-	<!-- 16-ричные константы -->
-	<production>
-		<left>HEX</left>
-		<right>0x DIGIT16</right>
-	</production>
-	<production>
-		<left>DIGIT16</left>
-		<right>D16</right>
-	</production>
-	<production>
-		<left>DIGIT16</left>
-		<right>DIGIT16 D16</right>
-	</production>
-	
-	<!-- 8-ричные цифры -->
-	<production>
-		<left>D8</left>
 		<right>0</right>
 	</production>
 	<production>
-		<left>D8</left>
-		<right>1</right>
+		<left>C</left>
+		<right>0tT</right>  <!-- Троичная система с префиксом 0t -->
 	</production>
 	<production>
-		<left>D8</left>
-		<right>2</right>
+		<left>C</left>
+		<right>0xH</right>  <!-- Шестнадцатеричная система -->
 	</production>
 	<production>
-		<left>D8</left>
-		<right>3</right>
-	</production>
-	<production>
-		<left>D8</left>
-		<right>4</right>
-	</production>
-	<production>
-		<left>D8</left>
-		<right>5</right>
-	</production>
-	<production>
-		<left>D8</left>
-		<right>6</right>
-	</production>
-	<production>
-		<left>D8</left>
-		<right>7</right>
+		<left>C</left>
+		<right>ND</right>   <!-- Десятичная система -->
 	</production>
 	
-	<!-- 16-ричные цифры -->
+	<!-- Троичные цифры -->
 	<production>
-		<left>D16</left>
+		<left>T</left>
+		<right>Q</right>
+	</production>
+	<production>
+		<left>T</left>
+		<right>TQ</right>
+	</production>
+	<production>
+		<left>Q</left>
 		<right>0</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>Q</left>
 		<right>1</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>Q</left>
+		<right>2</right>
+	</production>
+	
+	<!-- Шестнадцатеричные цифры -->
+	<production>
+		<left>H</left>
+		<right>R</right>
+	</production>
+	<production>
+		<left>H</left>
+		<right>HR</right>
+	</production>
+	<production>
+		<left>R</left>
+		<right>0</right>
+	</production>
+	<production>
+		<left>R</left>
+		<right>1</right>
+	</production>
+	<production>
+		<left>R</left>
 		<right>2</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>3</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>4</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>5</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>6</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>7</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>8</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>9</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>a</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>b</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>c</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>d</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>e</right>
 	</production>
 	<production>
-		<left>D16</left>
+		<left>R</left>
 		<right>f</right>
+	</production>
+	
+	<!-- Десятичные числа -->
+	<production>
+		<left>N</left>
+		<right>1</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>2</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>3</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>4</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>5</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>6</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>7</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>8</right>
+	</production>
+	<production>
+		<left>N</left>
+		<right>9</right>
+	</production>
+	<production>
+		<left>D</left>
+		<right>ε</right>
+	</production>
+	<production>
+		<left>D</left>
+		<right>ZD</right>
+	</production>
+	<production>
+		<left>Z</left>
+		<right>0</right>
+	</production>
+	<production>
+		<left>Z</left>
+		<right>N</right>
 	</production>
 </structure>
