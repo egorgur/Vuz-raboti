@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- M letter -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M30,70 L30,38 L42,55 L54,38 L54,70 L48,70 L48,52 L42,62 L36,52 L36,70 Z" />
+    <!-- Dot for "io" -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M62,38 A4,4 0 1,1 70,38 A4,4 0 1,1 62,38" />
+    <!-- i body -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M63,46 L69,46 L69,70 L63,70 Z" />
+    <!-- o -->
+    <path
+        android:fillColor="#007AFF"
+        android:pathData="M78,58 A12,12 0 1,1 78,57.99 Z M78,58 A6,6 0 1,0 78,57.99 Z" />
+</vector>
