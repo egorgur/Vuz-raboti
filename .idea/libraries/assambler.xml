@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="assambler">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/3rd_semester/assambler/pr7.zip!/" />
+      <root url="jar://$PROJECT_DIR$/3rd_semester/assambler/pr4.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

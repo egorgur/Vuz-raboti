@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Markio</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_title">Добро пожаловать</string>
+    <string name="welcome_subtitle">Войдите в свой аккаунт</string>
+    <string name="email_label">Электронная почта</string>
+    <string name="email_hint">eeeeeeeeeee@email.com</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_hint">••••••••••••••••••••</string>
+    <string name="login_button">Войти</string>
+    <string name="no_account">Нет аккаунта?</string>
+    <string name="register_link">Зарегистрироваться</string>
+
+    <!-- Registration Screen -->
+    <string name="registration_title">Регистрация</string>
+    <string name="registration_subtitle">Создайте свой аккаунт</string>
+    <string name="register_email_hint">eeeeee@email.com</string>
+    <string name="create_account_button">Создать аккаунт</string>
+    <string name="has_account">Уже есть аккаунт?</string>
+    <string name="login_link">Войти</string>
+
+    <!-- Main Screen -->
+    <string name="tab_weather">Погода</string>
+    <string name="tab_notes">Заметки</string>
+    <string name="logout_button">Выйти</string>
+    <string name="city_name">Тестоград</string>
+    <string name="weather_date">Вс, 22 февраля</string>
+    <string name="weather_temp">-1°</string>
+    <string name="weather_unit">С</string>
+
+    <!-- Notes Screen -->
+    <string name="create_note">Создать заметку</string>
+    <string name="note_title_label">Заголовок</string>
+    <string name="note_text_label">Текст</string>
+    <string name="note_date">22 февраля 2026</string>
+    <string name="save_button">Сохранить</string>
+    <string name="cancel_button">Отмена</string>
+    <string name="sample_note_title">Заголовок</string>
+    <string name="sample_note_text">Тест</string>
+
+    <!-- Logo -->
+    <string name="logo_mark">Mark</string>
+    <string name="logo_io">io</string>
+</resources>

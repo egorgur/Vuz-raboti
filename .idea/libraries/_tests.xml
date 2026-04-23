@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name=".tests">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/3rd_semester/mathematische_statistik/test3/.tests.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
