@@ -8,9 +8,14 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class NotesFragment : Fragment() {
 
@@ -25,7 +30,9 @@ class NotesFragment : Fragment() {
     private lateinit var adapter: NotesAdapter
     private val notesList = mutableListOf<Note>()
     private var editingNote: Note? = null
-    private var nextId = 1
+    
+    private val database by lazy { AppDatabase.getDatabase(requireContext()) }
+    private val noteDao by lazy { database.noteDao() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +53,6 @@ class NotesFragment : Fragment() {
         btnSaveNote = view.findViewById(R.id.btnSaveNote)
         btnCancelNote = view.findViewById(R.id.btnCancelNote)
 
-        // Add static sample notes
-        addSampleNotes()
-
         // Setup RecyclerView
         adapter = NotesAdapter(
             notesList,
@@ -57,6 +61,13 @@ class NotesFragment : Fragment() {
         )
         rvNotes.layoutManager = LinearLayoutManager(requireContext())
         rvNotes.adapter = adapter
+
+        // Observe notes from DB
+        lifecycleScope.launch {
+            noteDao.getAllNotes().collect { notes ->
+                adapter.setNotes(notes)
+            }
+        }
 
         // Create note button
         btnCreateNote.setOnClickListener {
@@ -76,20 +87,22 @@ class NotesFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            if (editingNote != null) {
-                // Update existing note
-                editingNote!!.title = title
-                editingNote!!.text = text
-                adapter.updateNote(editingNote!!)
-            } else {
-                // Create new note
-                val note = Note(
-                    id = nextId++,
-                    title = title,
-                    text = text,
-                    date = "22 февраля 2026"
-                )
-                adapter.addNote(note)
+            val currentDate = SimpleDateFormat("dd MMMM yyyy", Locale("ru")).format(Date())
+
+            lifecycleScope.launch {
+                if (editingNote != null) {
+                    // Update existing note
+                    val updatedNote = editingNote!!.copy(title = title, text = text)
+                    noteDao.updateNote(updatedNote)
+                } else {
+                    // Create new note
+                    val note = Note(
+                        title = title,
+                        text = text,
+                        date = currentDate
+                    )
+                    noteDao.insertNote(note)
+                }
             }
 
             noteFormContainer.visibility = View.GONE
@@ -103,33 +116,6 @@ class NotesFragment : Fragment() {
         }
     }
 
-    private fun addSampleNotes() {
-        notesList.add(
-            Note(
-                id = nextId++,
-                title = "Заголовок",
-                text = "Тест",
-                date = "22 февраля 2026"
-            )
-        )
-        notesList.add(
-            Note(
-                id = nextId++,
-                title = "Покупки",
-                text = "Молоко, хлеб, яйца",
-                date = "22 февраля 2026"
-            )
-        )
-        notesList.add(
-            Note(
-                id = nextId++,
-                title = "Идеи для проекта",
-                text = "Мобильное приложение для заметок",
-                date = "21 февраля 2026"
-            )
-        )
-    }
-
     private fun startEditNote(note: Note) {
         editingNote = note
         etNoteTitle.setText(note.title)
@@ -138,6 +124,8 @@ class NotesFragment : Fragment() {
     }
 
     private fun deleteNote(note: Note) {
-        adapter.removeNote(note)
+        lifecycleScope.launch {
+            noteDao.deleteNote(note)
+        }
     }
 }

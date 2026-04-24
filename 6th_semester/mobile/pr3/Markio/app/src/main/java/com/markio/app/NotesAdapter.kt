@@ -44,6 +44,12 @@ class NotesAdapter(
 
     override fun getItemCount(): Int = notes.size
 
+    fun setNotes(newNotes: List<Note>) {
+        notes.clear()
+        notes.addAll(newNotes)
+        notifyDataSetChanged()
+    }
+
     fun removeNote(note: Note) {
         val position = notes.indexOf(note)
         if (position != -1) {
