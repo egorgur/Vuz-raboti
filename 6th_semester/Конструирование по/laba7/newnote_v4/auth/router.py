@@ -6,7 +6,13 @@ from datetime import datetime, timedelta
 
 from database import get_db
 from auth.models import User
-from auth.schemas import RegisterRequest, LoginRequest, SmsRequest, SmsVerifyRequest, TokenResponse
+from auth.schemas import (
+    RegisterRequest,
+    LoginRequest,
+    SmsRequest,
+    SmsVerifyRequest,
+    TokenResponse,
+)
 from auth.password_service import PasswordService
 from auth.token_service import TokenService
 from auth.otp_service import OtpService
@@ -36,7 +42,9 @@ def register(data: RegisterRequest, request: Request, db: Session = Depends(get_
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
     check_rate_limit(request, "login")
-    token = AuthContext(EmailAuthStrategy()).login(db, email=data.email, password=data.password)
+    token = AuthContext(EmailAuthStrategy()).login(
+        db, email=data.email, password=data.password
+    )
     return {"access_token": token}
 
 

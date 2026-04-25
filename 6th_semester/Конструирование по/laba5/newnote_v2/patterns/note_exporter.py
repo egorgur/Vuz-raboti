@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 import json
 from models import Note
 
+
 class NoteExporter(ABC):
     """Базовый интерфейс экспортёра."""
 
@@ -16,6 +17,7 @@ class NoteExporter(ABC):
     @property
     @abstractmethod
     def content_type(self) -> str: ...
+
 
 class PlainTextExporter(NoteExporter):
     """Экспорт в обычный текст."""
@@ -53,6 +55,7 @@ class JsonExporter(NoteExporter):
     def content_type(self) -> str:
         return "application/json"
 
+
 class NoteExporterFactory(ABC):
     """Базовая фабрика экспортёров."""
 
@@ -80,8 +83,9 @@ class JsonExporterFactory(NoteExporterFactory):
     def create_exporter(self) -> NoteExporter:
         return JsonExporter()
 
+
 _FACTORIES: dict[str, NoteExporterFactory] = {
-    "txt":  PlainTextExporterFactory(),
+    "txt": PlainTextExporterFactory(),
     "json": JsonExporterFactory(),
 }
 
@@ -90,5 +94,7 @@ def get_exporter_factory(fmt: str) -> NoteExporterFactory:
     """Возвращает фабрику по имени формата."""
     factory = _FACTORIES.get(fmt)
     if factory is None:
-        raise ValueError(f"Unknown export format: {fmt!r}. Supported: {list(_FACTORIES)}")
+        raise ValueError(
+            f"Unknown export format: {fmt!r}. Supported: {list(_FACTORIES)}"
+        )
     return factory

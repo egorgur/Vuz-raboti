@@ -1,12 +1,4 @@
-"""
-API Gateway — единая точка входа для клиентов.
-
-Маршрутизирует запросы к соответствующим микросервисам:
-  /auth/*  → auth-service  (порт 8001)
-  /notes/* → notes-service (порт 8002)
-
-Проверяет JWT-токен перед проксированием запросов к notes-service.
-"""
+"""API Gateway: прокси между клиентом и микросервисами."""
 
 import httpx
 from fastapi import FastAPI, Request, HTTPException, Depends
@@ -15,9 +7,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 
 SECRET_KEY = "change-me-in-production"
-ALGORITHM  = "HS256"
+ALGORITHM = "HS256"
 
-AUTH_SERVICE_URL  = "http://auth-service:8001"
+AUTH_SERVICE_URL = "http://auth-service:8001"
 NOTES_SERVICE_URL = "http://notes-service:8002"
 
 app = FastAPI(title="NewNote API Gateway")
@@ -44,12 +36,14 @@ async def proxy(url: str, request: Request, extra_headers: dict = None) -> JSONR
             params=request.query_params,
             timeout=10.0,
         )
-    return JSONResponse(status_code=resp.status_code, content=resp.json() if resp.content else {})
+    return JSONResponse(
+        status_code=resp.status_code, content=resp.json() if resp.content else {}
+    )
 
 
 @app.api_route("/auth/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 async def auth_proxy(path: str, request: Request):
-    """Проксирует все /auth/* запросы в auth-service без проверки токена."""
+    """Проксирует запрос в auth-service."""
     return await proxy(f"{AUTH_SERVICE_URL}/auth/{path}", request)
 
 
@@ -59,12 +53,12 @@ async def notes_proxy(
     request: Request,
     token: str = Depends(oauth2_scheme),
 ):
-    """Проксирует /notes/* в notes-service. Требует валидный JWT-токен."""
+    """Проксирует запрос в notes-service после проверки токена."""
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     payload = verify_token(token)
     user_id = payload.get("sub")
-    role    = payload.get("role", "user")
+    role = payload.get("role", "user")
     return await proxy(
         f"{NOTES_SERVICE_URL}/notes/{path}",
         request,

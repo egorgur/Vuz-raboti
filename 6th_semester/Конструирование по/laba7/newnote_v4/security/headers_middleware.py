@@ -5,13 +5,13 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 SECURITY_HEADERS = {
-    "X-Content-Type-Options":    "nosniff",
-    "X-Frame-Options":           "DENY",
-    "X-XSS-Protection":          "1; mode=block",
-    "Referrer-Policy":           "strict-origin-when-cross-origin",
-    "Content-Security-Policy":   "default-src 'self'",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Content-Security-Policy": "default-src 'self'",
     "Strict-Transport-Security": "max-age=0",
-    "Cache-Control":             "no-store",
+    "Cache-Control": "no-store",
 }
 
 

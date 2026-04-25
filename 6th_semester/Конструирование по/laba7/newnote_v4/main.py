@@ -15,5 +15,5 @@ app = FastAPI(
 
 app.add_middleware(SecurityHeadersMiddleware)
 
-app.include_router(auth_router,  prefix="/auth",  tags=["auth"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(notes_router, prefix="/notes", tags=["notes"])

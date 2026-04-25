@@ -1,14 +1,13 @@
 """Стратегии аутентификации по email и SMS."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from auth.models import User
 from auth.password_service import PasswordService
 from auth.token_service import TokenService
-from auth.otp_service import OtpService
 
 
 class AuthStrategy(ABC):
@@ -23,7 +22,9 @@ class EmailAuthStrategy(AuthStrategy):
 
     def authenticate(self, db: Session, **kwargs) -> str:
         user: User | None = db.query(User).filter(User.email == kwargs["email"]).first()
-        if not user or not PasswordService.verify(kwargs["password"], user.password_hash):
+        if not user or not PasswordService.verify(
+            kwargs["password"], user.password_hash
+        ):
             raise HTTPException(401, "Invalid credentials")
         return TokenService.create(user.id)
 

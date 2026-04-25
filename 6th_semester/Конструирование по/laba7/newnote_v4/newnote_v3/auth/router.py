@@ -1,7 +1,4 @@
-"""
-Принцип единственной ответственности (SRP): роутер отвечает только
-за маршрутизацию HTTP-запросов, делегируя логику сервисам.
-"""
+"""Маршруты аутентификации."""
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,7 +6,13 @@ from datetime import datetime, timedelta
 
 from database import get_db
 from auth.models import User
-from auth.schemas import RegisterRequest, LoginRequest, SmsRequest, SmsVerifyRequest, TokenResponse
+from auth.schemas import (
+    RegisterRequest,
+    LoginRequest,
+    SmsRequest,
+    SmsVerifyRequest,
+    TokenResponse,
+)
 from auth.password_service import PasswordService
 from auth.token_service import TokenService
 from auth.otp_service import OtpService
@@ -35,7 +38,9 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    token = AuthContext(EmailAuthStrategy()).login(db, email=data.email, password=data.password)
+    token = AuthContext(EmailAuthStrategy()).login(
+        db, email=data.email, password=data.password
+    )
     return {"access_token": token}
 
 

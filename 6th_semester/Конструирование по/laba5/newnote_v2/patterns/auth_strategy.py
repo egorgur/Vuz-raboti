@@ -1,7 +1,7 @@
 """Стратегии аутентификации по email и SMS."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 

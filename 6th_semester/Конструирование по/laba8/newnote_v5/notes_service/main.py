@@ -1,11 +1,4 @@
-"""
-Notes Service — микросервис управления заметками.
-
-Ответственность: CRUD-операции с заметками.
-Идентификация пользователя — из заголовков X-User-Id и X-User-Role,
-проставленных API Gateway после проверки JWT.
-Имеет собственную базу данных (notes.db).
-"""
+"""Точка входа сервиса заметок."""
 
 from fastapi import FastAPI
 from notes_service.database import Base, engine

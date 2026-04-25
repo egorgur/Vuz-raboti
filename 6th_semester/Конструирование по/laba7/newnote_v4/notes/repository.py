@@ -1,17 +1,4 @@
-"""
-Принцип инверсии зависимостей (DIP): NoteRepository реализует
-стабильные интерфейсы INoteReader и INoteWriter из пакета interfaces/.
-Высокоуровневый модуль (router) зависит от абстракций, а не от
-конкретного класса.
-
-Принцип стабильных зависимостей (SDP): этот модуль (volatile)
-зависит от interfaces/ (stable) — зависимость направлена
-в сторону стабильности.
-
-Принцип подстановки Лисков (LSP): NoteRepository полностью
-заменяем любым другим классом, реализующим те же интерфейсы
-(например, InMemoryNoteRepository для тестов).
-"""
+"""Репозиторий заметок на SQLAlchemy."""
 
 from datetime import datetime
 from typing import List, Optional
@@ -23,15 +10,10 @@ from notes.models import Note
 
 
 class NoteRepository(INoteReader, INoteWriter):
-    """
-    Конкретная реализация репозитория заметок.
-    Реализует оба интерфейса — читателя и писателя (DIP + ISP + LSP).
-    """
+    """Реализация интерфейсов чтения и записи заметок."""
 
     def __init__(self, db: Session) -> None:
         self._db = db
-
-    # ── INoteReader ────────────────────────────────────────────────────────────
 
     def get_all(self, owner_id: int, q: Optional[str] = None) -> List[Note]:
         query = self._db.query(Note).filter(Note.owner_id == owner_id)
@@ -45,8 +27,6 @@ class NoteRepository(INoteReader, INoteWriter):
             .filter(Note.id == note_id, Note.owner_id == owner_id)
             .first()
         )
-
-    # ── INoteWriter ────────────────────────────────────────────────────────────
 
     def create(self, owner_id: int, title: str, text: str) -> Note:
         note = Note(title=title, text=text, owner_id=owner_id)

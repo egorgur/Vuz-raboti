@@ -4,7 +4,13 @@ from datetime import datetime, timedelta
 
 from database import get_db
 from models import User
-from schemas import RegisterRequest, LoginRequest, SmsRequest, SmsVerifyRequest, TokenResponse
+from schemas import (
+    RegisterRequest,
+    LoginRequest,
+    SmsRequest,
+    SmsVerifyRequest,
+    TokenResponse,
+)
 import auth_utils
 
 router = APIRouter()
