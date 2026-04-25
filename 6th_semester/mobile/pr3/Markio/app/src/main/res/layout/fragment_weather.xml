@@ -19,28 +19,34 @@
             android:padding="20dp"
             android:layout_marginBottom="16dp">
 
-            <!-- City Name -->
             <TextView
                 android:id="@+id/tvCityName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/city_name"
+                android:text="Погода"
                 android:textSize="20sp"
                 android:textColor="@color/white"
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp" />
 
-            <!-- Date -->
             <TextView
                 android:id="@+id/tvWeatherDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/weather_date"
+                android:text="Факт о кошках:"
                 android:textSize="13sp"
                 android:textColor="#CCFFFFFF"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvCatFact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Загрузка факта..."
+                android:textSize="16sp"
+                android:textColor="@color/white"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Temperature -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -51,7 +57,7 @@
                     android:id="@+id/tvTemperature"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/weather_temp"
+                    android:text="-1"
                     android:textSize="48sp"
                     android:textColor="@color/white"
                     android:textStyle="bold" />
@@ -59,7 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/weather_unit"
+                    android:text="°C"
                     android:textSize="20sp"
                     android:textColor="#CCFFFFFF"
                     android:layout_marginStart="4dp"
@@ -67,106 +73,11 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Map Placeholder -->
-        <FrameLayout
+        <!-- Map -->
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
             android:layout_width="match_parent"
-            android:layout_height="280dp"
-            android:background="@drawable/bg_map_placeholder">
-
-            <!-- Map controls overlay -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <!-- Map/Satellite toggle -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/bg_note_card"
-                    android:padding="2dp"
-                    android:layout_gravity="start"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Map"
-                        android:textSize="11sp"
-                        android:textColor="@color/black"
-                        android:background="@color/white"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Satellite"
-                        android:textSize="11sp"
-                        android:textColor="@color/medium_gray"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <!-- Static map text -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🗺️ Карта (статический макет)"
-                    android:textSize="16sp"
-                    android:textColor="@color/medium_gray"
-                    android:gravity="center" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <!-- Zoom controls -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_gravity="end"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/bg_note_card">
-
-                    <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:text="+"
-                        android:textSize="20sp"
-                        android:textColor="@color/dark_gray"
-                        android:gravity="center" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider" />
-
-                    <TextView
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:text="−"
-                        android:textSize="20sp"
-                        android:textColor="@color/dark_gray"
-                        android:gravity="center" />
-                </LinearLayout>
-            </LinearLayout>
-        </FrameLayout>
+            android:layout_height="400dp" />
 
     </LinearLayout>
 </ScrollView>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
+
+    <!-- Create Note Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCreateNote"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="@string/create_note"
+        android:textSize="15sp"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/primary_blue"
+        app:cornerRadius="24dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Notes List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNotes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false" />
+
+    <!-- Create/Edit Note Form (initially hidden) -->
+    <LinearLayout
+        android:id="@+id/noteFormContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="16dp">
+
+        <!-- Title Input -->
+        <EditText
+            android:id="@+id/etNoteTitle"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_note_input"
+            android:hint="@string/note_title_label"
+            android:textColorHint="@color/text_hint"
+            android:textSize="14sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:inputType="text"
+            android:layout_marginBottom="12dp"
+            android:importantForAutofill="no" />
+
+        <!-- Text Input -->
+        <EditText
+            android:id="@+id/etNoteText"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_note_input"
+            android:hint="@string/note_text_label"
+            android:textColorHint="@color/text_hint"
+            android:textSize="14sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:inputType="text"
+            android:layout_marginBottom="16dp"
+            android:importantForAutofill="no" />
+
+        <!-- Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveNote"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="@string/save_button"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary_blue"
+                app:cornerRadius="22dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_marginEnd="8dp" />
+
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelNote"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:text="@string/cancel_button"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/button_logout_bg"
+                app:cornerRadius="22dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
