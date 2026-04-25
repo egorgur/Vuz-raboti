@@ -1,17 +1,4 @@
-"""
-Паттерн проектирования: Стратегия (Strategy) — поведенческий.
-
-Контекст: При аутентификации пользователь может выбрать один из двух способов
-входа: по e-mail + пароль или по одноразовому SMS-коду. Оба способа имеют
-общий интерфейс (метод authenticate), но различную реализацию.
-Паттерн позволяет переключать алгоритм аутентификации без изменения кода,
-который его использует.
-
-Когда НЕ использовать Шаблонный метод (Template Method):
-Шаблонный метод подходит, когда у всех вариантов есть фиксированная
-последовательность шагов. Здесь же у e-mail и SMS-аутентификации нет
-общих шагов — это принципиально разные алгоритмы. Поэтому выбрана Стратегия.
-"""
+"""Стратегии аутентификации по email и SMS."""
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
@@ -23,16 +10,16 @@ import auth_utils
 
 
 class AuthStrategy(ABC):
-    """Абстрактная стратегия аутентификации."""
+    """Общий интерфейс стратегии аутентификации."""
 
     @abstractmethod
     def authenticate(self, db: Session, **kwargs) -> str:
-        """Выполняет аутентификацию и возвращает JWT-токен."""
+        """Проверяет данные и возвращает JWT-токен."""
         ...
 
 
 class EmailAuthStrategy(AuthStrategy):
-    """Конкретная стратегия: вход по e-mail и паролю."""
+    """Вход по e-mail и паролю."""
 
     def authenticate(self, db: Session, **kwargs) -> str:
         email = kwargs["email"]
@@ -44,7 +31,7 @@ class EmailAuthStrategy(AuthStrategy):
 
 
 class SmsAuthStrategy(AuthStrategy):
-    """Конкретная стратегия: вход по одноразовому SMS-коду (OTP)."""
+    """Вход по одноразовому SMS-коду."""
 
     def authenticate(self, db: Session, **kwargs) -> str:
         phone = kwargs["phone"]
@@ -60,7 +47,7 @@ class SmsAuthStrategy(AuthStrategy):
 
 
 class AuthContext:
-    """Контекст, использующий стратегию аутентификации."""
+    """Контекст, который применяет выбранную стратегию."""
 
     def __init__(self, strategy: AuthStrategy) -> None:
         self._strategy = strategy

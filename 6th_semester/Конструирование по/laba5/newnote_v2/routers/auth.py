@@ -6,7 +6,6 @@ from database import get_db
 from models import User
 from schemas import RegisterRequest, LoginRequest, SmsRequest, SmsVerifyRequest, TokenResponse
 import auth_utils
-# Паттерн Стратегия
 from patterns.auth_strategy import AuthContext, EmailAuthStrategy, SmsAuthStrategy
 
 router = APIRouter()
@@ -29,7 +28,6 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
-    # Используем паттерн Стратегия: выбираем EmailAuthStrategy
     ctx = AuthContext(EmailAuthStrategy())
     token = ctx.login(db, email=data.email, password=data.password)
     return {"access_token": token}
@@ -48,7 +46,6 @@ def send_sms(data: SmsRequest, db: Session = Depends(get_db)):
 
 @router.post("/sms/verify", response_model=TokenResponse)
 def verify_sms(data: SmsVerifyRequest, db: Session = Depends(get_db)):
-    # Используем паттерн Стратегия: выбираем SmsAuthStrategy
     ctx = AuthContext(SmsAuthStrategy())
     token = ctx.login(db, phone=data.phone, code=data.code)
     return {"access_token": token}

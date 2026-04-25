@@ -1,18 +1,4 @@
-"""
-Паттерн проектирования: Репозиторий (Repository) — структурный.
-
-Контекст: Роутеры FastAPI напрямую работали с объектами SQLAlchemy Session,
-что смешивало бизнес-логику с деталями доступа к данным.
-Паттерн Repository изолирует логику работы с БД за единым интерфейсом,
-что упрощает тестирование (можно подменить репозиторий заглушкой)
-и делает код роутеров чище.
-
-Когда НЕ использовать Фасад (Facade):
-Фасад предоставляет упрощённый интерфейс к сложной подсистеме нескольких
-классов. Здесь подсистема одна (SQLAlchemy Session + модель Note), и нам
-нужна именно абстракция хранилища с единым ответственным классом —
-это задача Repository, не Facade.
-"""
+"""Репозиторий заметок на SQLAlchemy."""
 
 from abc import ABC, abstractmethod
 from datetime import datetime
@@ -23,7 +9,7 @@ from models import Note
 
 
 class AbstractNoteRepository(ABC):
-    """Абстрактный интерфейс репозитория заметок."""
+    """Интерфейс репозитория заметок."""
 
     @abstractmethod
     def get_all(self, owner_id: int, q: Optional[str] = None) -> List[Note]: ...
@@ -42,7 +28,7 @@ class AbstractNoteRepository(ABC):
 
 
 class NoteRepository(AbstractNoteRepository):
-    """Конкретный репозиторий: хранение заметок в реляционной БД (SQLAlchemy)."""
+    """Реализация репозитория в реляционной БД."""
 
     def __init__(self, db: Session) -> None:
         self._db = db

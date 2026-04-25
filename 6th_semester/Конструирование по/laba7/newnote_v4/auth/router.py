@@ -1,7 +1,4 @@
-"""
-SRP: HTTP-маршрутизация аутентификации.
-Интегрированы: Rate Limiting (security №1).
-"""
+"""Маршруты аутентификации."""
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
@@ -14,14 +11,14 @@ from auth.password_service import PasswordService
 from auth.token_service import TokenService
 from auth.otp_service import OtpService
 from auth.strategies import AuthContext, EmailAuthStrategy, SmsAuthStrategy
-from security.rate_limiter import check_rate_limit  # аспект безопасности №1
+from security.rate_limiter import check_rate_limit
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=TokenResponse)
 def register(data: RegisterRequest, request: Request, db: Session = Depends(get_db)):
-    check_rate_limit(request, "register")  # Rate Limit
+    check_rate_limit(request, "register")
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(400, "Email already registered")
     user = User(
@@ -38,14 +35,14 @@ def register(data: RegisterRequest, request: Request, db: Session = Depends(get_
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginRequest, request: Request, db: Session = Depends(get_db)):
-    check_rate_limit(request, "login")  # Rate Limit — защита от brute-force
+    check_rate_limit(request, "login")
     token = AuthContext(EmailAuthStrategy()).login(db, email=data.email, password=data.password)
     return {"access_token": token}
 
 
 @router.post("/sms/send")
 def send_sms(data: SmsRequest, request: Request, db: Session = Depends(get_db)):
-    check_rate_limit(request, "sms_send")  # Rate Limit — защита от SMS-флудинга
+    check_rate_limit(request, "sms_send")
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(404, "Phone not registered")
@@ -57,6 +54,6 @@ def send_sms(data: SmsRequest, request: Request, db: Session = Depends(get_db)):
 
 @router.post("/sms/verify", response_model=TokenResponse)
 def verify_sms(data: SmsVerifyRequest, request: Request, db: Session = Depends(get_db)):
-    check_rate_limit(request, "sms_verify")  # Rate Limit
+    check_rate_limit(request, "sms_verify")
     token = AuthContext(SmsAuthStrategy()).login(db, phone=data.phone, code=data.code)
     return {"access_token": token}

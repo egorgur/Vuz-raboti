@@ -1,7 +1,4 @@
-"""
-Принцип единственной ответственности (SRP): роутер отвечает только
-за маршрутизацию HTTP-запросов, делегируя логику сервисам.
-"""
+"""Маршруты аутентификации."""
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session

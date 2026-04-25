@@ -1,9 +1,4 @@
-"""
-Принцип единственной ответственности (SRP).
-Принцип общего замыкания (CCP): Note относится к домену заметок,
-хранится в пакете notes/ вместе с кодом, изменяющимся по тем же
-причинам.
-"""
+"""SQLAlchemy-модель заметки."""
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship

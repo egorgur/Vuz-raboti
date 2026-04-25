@@ -1,13 +1,10 @@
-"""
-Точка входа приложения NewNote.
-Зарегистрированы: SecurityHeadersMiddleware (аспект безопасности №2).
-"""
+"""Точка входа приложения NewNote."""
 
 from fastapi import FastAPI
 from database import Base, engine
 from auth.router import router as auth_router
 from notes.router import router as notes_router
-from security.headers_middleware import SecurityHeadersMiddleware  # безопасность №2
+from security.headers_middleware import SecurityHeadersMiddleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -16,7 +13,6 @@ app = FastAPI(
     description="Note-taking app — SOLID + components + security",
 )
 
-# Аспект безопасности №2: заголовки безопасности для всех ответов
 app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(auth_router,  prefix="/auth",  tags=["auth"])

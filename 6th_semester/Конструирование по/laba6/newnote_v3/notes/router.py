@@ -1,15 +1,4 @@
-"""
-Принцип инверсии зависимостей (DIP): функции роутера принимают
-зависимости через параметры (db: Session), из которых создают
-конкретный NoteRepository. Однако тип аннотаций — интерфейсы
-INoteReader / INoteWriter, что позволяет подменять реализацию.
-
-Принцип единственной ответственности (SRP): роутер отвечает только
-за HTTP-маршрутизацию.
-
-Принцип стабильных зависимостей (SDP): notes.router (volatile)
-зависит от interfaces/ (stable) — не наоборот.
-"""
+"""Маршруты для CRUD-операций с заметками."""
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
@@ -28,17 +17,17 @@ router = APIRouter()
 
 
 def _get_reader(db: Session) -> INoteReader:
-    """Фабрика: возвращает конкретный репозиторий через интерфейс читателя (DIP)."""
+    """Возвращает интерфейс чтения заметок."""
     return NoteRepository(db)
 
 
 def _get_writer(db: Session) -> INoteWriter:
-    """Фабрика: возвращает конкретный репозиторий через интерфейс писателя (DIP)."""
+    """Возвращает интерфейс записи заметок."""
     return NoteRepository(db)
 
 
 def get_current_user(db: Session = Depends(get_db)) -> User:
-    """Упрощённая заглушка; в production — реализовать через JWT."""
+    """Временная заглушка для пользователя."""
     raise NotImplementedError("Use dependencies.get_current_user in production")
 
 
@@ -99,7 +88,7 @@ def export_note(
     user:    User    = Depends(get_current_user),
     db:      Session = Depends(get_db),
 ):
-    """Экспорт в txt или json. OCP: новые форматы — новые классы."""
+    """Экспортирует заметку в `txt` или `json`."""
     reader: INoteReader = _get_reader(db)
     note = reader.get_by_id(note_id, user.id)
     if not note:

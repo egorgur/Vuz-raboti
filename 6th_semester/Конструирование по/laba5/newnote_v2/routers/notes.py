@@ -7,7 +7,6 @@ from database import get_db
 from models import User
 from schemas import NoteCreate, NoteUpdate, NoteResponse
 from dependencies import get_current_user
-# Паттерны Repository и Factory Method
 from patterns.note_repository import NoteRepository
 from patterns.note_exporter import get_exporter_factory
 
@@ -71,7 +70,7 @@ def export_note(
     user:    User    = Depends(get_current_user),
     db:      Session = Depends(get_db),
 ):
-    """Экспорт заметки. Параметр fmt: txt | json. Используется паттерн Factory Method."""
+    """Экспортирует заметку в `txt` или `json`."""
     note = _repo(db).get_by_id(note_id, user.id)
     if not note:
         raise HTTPException(404, "Note not found")

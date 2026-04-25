@@ -1,17 +1,11 @@
-"""
-Принцип разделения интерфейсов (ISP).
-
-INoteWriter описывает только операции изменения состояния заметок.
-Клиенты, которым нужно только записывать данные, не обязаны
-зависеть от методов чтения (INoteReader).
-"""
+"""Интерфейс операций записи заметок."""
 
 from abc import ABC, abstractmethod
 from typing import Optional
 
 
 class INoteWriter(ABC):
-    """Контракт только на запись заметок (ISP)."""
+    """Контракт для записи заметок."""
 
     @abstractmethod
     def create(self, owner_id: int, title: str, text: str) -> object: ...

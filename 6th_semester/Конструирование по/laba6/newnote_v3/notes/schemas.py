@@ -1,8 +1,4 @@
-"""
-Принцип единственной ответственности (SRP).
-Принцип общего замыкания (CCP): схемы заметок изменяются
-вместе с notes.router → они в одном пакете notes/.
-"""
+"""Pydantic-схемы заметок."""
 
 from pydantic import BaseModel
 from datetime import datetime

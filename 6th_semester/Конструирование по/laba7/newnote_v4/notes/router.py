@@ -1,8 +1,4 @@
-"""
-SRP: HTTP-маршрутизация заметок.
-DIP: зависит от интерфейсов INoteReader / INoteWriter.
-Интегрирован RBAC (security №3): администратор видит заметки любого пользователя.
-"""
+"""Маршруты для работы с заметками."""
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
@@ -14,7 +10,7 @@ from auth.models import User
 from notes.schemas import NoteCreate, NoteUpdate, NoteResponse
 from notes.repository import NoteRepository
 from interfaces import INoteReader, INoteWriter
-from security.rbac import is_admin  # аспект безопасности №3
+from security.rbac import is_admin
 
 router = APIRouter()
 
@@ -28,22 +24,18 @@ def _get_writer(db: Session) -> INoteWriter:
 
 
 def get_current_user(db: Session = Depends(get_db)) -> User:
-    """Заглушка; в production реализуется через JWT (см. auth/token_service.py)."""
+    """Временная заглушка для пользователя."""
     raise NotImplementedError("Implement JWT dependency in production")
 
 
 @router.get("/", response_model=List[NoteResponse])
 def list_notes(
     q:          Optional[str] = None,
-    owner_id:   Optional[int] = None,   # только для ADMIN
+    owner_id:   Optional[int] = None,
     user: User    = Depends(get_current_user),
     db:   Session = Depends(get_db),
 ):
-    """
-    RBAC: если пользователь — администратор, он может запросить заметки
-    любого пользователя через параметр ?owner_id=X.
-    Обычный пользователь видит только свои заметки.
-    """
+    """Возвращает список заметок текущего пользователя или owner_id."""
     reader: INoteReader = _get_reader(db)
     target_id = user.id
     if owner_id is not None:
@@ -89,7 +81,6 @@ def delete_note(
     if not note and not is_admin(user):
         raise HTTPException(404, "Note not found")
     if not note:
-        # Администратор: поиск без фильтра по owner
         from notes.models import Note as NoteModel
         note = db.query(NoteModel).filter(NoteModel.id == note_id).first()
         if not note:

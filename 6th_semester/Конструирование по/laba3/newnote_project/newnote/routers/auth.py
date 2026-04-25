@@ -35,14 +35,14 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/sms/send")
 def send_sms(data: SmsRequest, db: Session = Depends(get_db)):
-    """Generate and store a 6-digit OTP; in production — send via SMS provider."""
+    """Генерирует и сохраняет одноразовый код для входа по SMS."""
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(404, "Phone not registered")
     user.sms_code = auth_utils.generate_sms_code()
     user.sms_code_expires = datetime.utcnow() + timedelta(minutes=5)
     db.commit()
-    # TODO: integrate SMS provider (e.g. Twilio)
+    # Реальную отправку SMS подключим позже.
     return {"message": "SMS sent"}
 
 
