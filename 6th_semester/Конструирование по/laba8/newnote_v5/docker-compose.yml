@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api_gateway/Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - notes-service
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - NOTES_SERVICE_URL=http://notes-service:8002
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth_service/Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - auth_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/auth.db
+
+  notes-service:
+    build:
+      context: .
+      dockerfile: notes_service/Dockerfile
+    ports:
+      - "8002:8002"
+    volumes:
+      - notes_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/notes.db
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification_service/Dockerfile
+    ports:
+      - "8003:8003"
+
+volumes:
+  auth_data:
+  notes_data:
