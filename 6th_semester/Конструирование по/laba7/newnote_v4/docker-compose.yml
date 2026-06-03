@@ -1,0 +1,38 @@
+# Аспект безопасности №2: Контейнеризация.
+# Приложение и база данных изолированы в отдельных контейнерах и
+# связаны приватной сетью. Наружу публикуется только порт приложения;
+# порт БД доступен лишь внутри сети backend, недоступен снаружи.
+
+services:
+  app:
+    build: .
+    environment:
+      # Подключение к БД внутри приватной сети по имени сервиса "db".
+      DATABASE_URL: postgresql://newnote:newnote@db:5432/newnote
+    ports:
+      - "8000:8000"          # единственный публикуемый наружу порт
+    depends_on:
+      - db
+    networks:
+      - backend
+    restart: unless-stopped   # отказоустойчивость: автоперезапуск
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: newnote
+      POSTGRES_PASSWORD: newnote
+      POSTGRES_DB: newnote
+    # порт наружу НЕ публикуется — БД изолирована внутри сети backend
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  db_data:

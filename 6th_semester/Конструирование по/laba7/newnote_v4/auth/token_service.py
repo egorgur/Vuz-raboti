@@ -1,10 +1,12 @@
-"""Сервис работы с JWT-токенами."""
+"""
+auth/token_service.py — JWT-токены с поддержкой роли пользователя (RBAC).
+"""
 
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError
 
-SECRET_KEY = "change-me-in-production"
-ALGORITHM = "HS256"
+SECRET_KEY         = "change-me-in-production"
+ALGORITHM          = "HS256"
 TOKEN_EXPIRE_HOURS = 6
 
 

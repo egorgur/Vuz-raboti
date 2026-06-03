@@ -1,78 +1,60 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime
+from typing import List, Optional
 
 from notes_service.database import get_db
-from notes_service.models import Note
+from notes_service.repository import NoteRepository
+from notes_service.schemas import NoteCreate, NoteUpdate, NoteOut
+from notes_service.security import current_user, CurrentUser
 
 router = APIRouter()
 
 
-def current_user(
-    x_user_id:   str = Header(...),
-    x_user_role: str = Header(default="user"),
-) -> dict:
-    return {"id": int(x_user_id), "role": x_user_role}
-
-
-class NoteCreate(BaseModel):
-    title: str
-    text:  Optional[str] = ""
-
-class NoteUpdate(BaseModel):
-    title: Optional[str] = None
-    text:  Optional[str] = None
-
-class NoteOut(BaseModel):
-    id: int; title: str; text: str
-    created_at: datetime; updated_at: datetime
-    model_config = {"from_attributes": True}
+def get_notes(db: Session = Depends(get_db)) -> NoteRepository:
+    return NoteRepository(db)
 
 
 @router.get("/", response_model=List[NoteOut])
 def list_notes(
     q: Optional[str] = None,
     owner_id: Optional[int] = None,
-    user: dict = Depends(current_user),
-    db: Session = Depends(get_db),
+    user: CurrentUser = Depends(current_user),
+    notes: NoteRepository = Depends(get_notes),
 ):
-    target = user["id"]
-    if owner_id and user["role"] == "admin":
-        target = owner_id
-    q_obj = db.query(Note).filter(Note.owner_id == target)
-    if q:
-        q_obj = q_obj.filter(Note.title.ilike(f"%{q}%"))
-    return q_obj.order_by(Note.updated_at.desc()).all()
+    target = owner_id if owner_id and user.is_admin else user.id
+    return notes.list(target, q)
 
 
 @router.post("/", response_model=NoteOut)
-def create_note(data: NoteCreate, user: dict = Depends(current_user), db: Session = Depends(get_db)):
-    note = Note(title=data.title, text=data.text or "", owner_id=user["id"])
-    db.add(note); db.commit(); db.refresh(note)
-    return note
+def create_note(
+    data: NoteCreate,
+    user: CurrentUser = Depends(current_user),
+    notes: NoteRepository = Depends(get_notes),
+):
+    return notes.create(user.id, data.title, data.text or "")
 
 
 @router.put("/{note_id}", response_model=NoteOut)
-def update_note(note_id: int, data: NoteUpdate, user: dict = Depends(current_user), db: Session = Depends(get_db)):
-    note = db.query(Note).filter(Note.id == note_id, Note.owner_id == user["id"]).first()
+def update_note(
+    note_id: int,
+    data: NoteUpdate,
+    user: CurrentUser = Depends(current_user),
+    notes: NoteRepository = Depends(get_notes),
+):
+    note = notes.get(note_id, user.id)
     if not note:
         raise HTTPException(404, "Note not found")
-    if data.title is not None: note.title = data.title
-    if data.text  is not None: note.text  = data.text
-    note.updated_at = datetime.utcnow()
-    db.commit(); db.refresh(note)
-    return note
+    return notes.update(note, data.title, data.text)
 
 
 @router.delete("/{note_id}")
-def delete_note(note_id: int, user: dict = Depends(current_user), db: Session = Depends(get_db)):
-    q = db.query(Note).filter(Note.id == note_id)
-    if user["role"] != "admin":
-        q = q.filter(Note.owner_id == user["id"])
-    note = q.first()
+def delete_note(
+    note_id: int,
+    user: CurrentUser = Depends(current_user),
+    notes: NoteRepository = Depends(get_notes),
+):
+    note = notes.get(note_id, None if user.is_admin else user.id)
     if not note:
         raise HTTPException(404, "Note not found")
-    db.delete(note); db.commit()
+    notes.delete(note)
     return {"message": "Deleted"}

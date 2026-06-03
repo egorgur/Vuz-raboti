@@ -1,0 +1,16 @@
+# Аспект безопасности №2: исключаем из образа лишние и чувствительные файлы.
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+*.db
+*.sqlite3
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+README*
+newnote_v3/

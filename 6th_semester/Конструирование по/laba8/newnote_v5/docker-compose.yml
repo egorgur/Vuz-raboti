@@ -2,17 +2,23 @@ version: "3.9"
 
 services:
   api-gateway:
-    build:
-      context: .
-      dockerfile: api_gateway/Dockerfile
+    image: nginx:alpine
     ports:
-      - "8000:8000"
+      - "8000:80"
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - auth-service
       - notes-service
+
+  auth-db:
+    image: postgres:16-alpine
     environment:
-      - AUTH_SERVICE_URL=http://auth-service:8001
-      - NOTES_SERVICE_URL=http://notes-service:8002
+      - POSTGRES_USER=auth
+      - POSTGRES_PASSWORD=auth
+      - POSTGRES_DB=auth
+    volumes:
+      - auth_data:/var/lib/postgresql/data
 
   auth-service:
     build:
@@ -20,10 +26,22 @@ services:
       dockerfile: auth_service/Dockerfile
     ports:
       - "8001:8001"
-    volumes:
-      - auth_data:/app/data
+    depends_on:
+      - auth-db
+      - notification-service
     environment:
-      - DATABASE_URL=sqlite:////app/data/auth.db
+      - DATABASE_URL=postgresql://auth:auth@auth-db:5432/auth
+      - SECRET_KEY=change-me-in-production
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8003
+
+  notes-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=notes
+      - POSTGRES_PASSWORD=notes
+      - POSTGRES_DB=notes
+    volumes:
+      - notes_data:/var/lib/postgresql/data
 
   notes-service:
     build:
@@ -31,10 +49,11 @@ services:
       dockerfile: notes_service/Dockerfile
     ports:
       - "8002:8002"
-    volumes:
-      - notes_data:/app/data
+    depends_on:
+      - notes-db
     environment:
-      - DATABASE_URL=sqlite:////app/data/notes.db
+      - DATABASE_URL=postgresql://notes:notes@notes-db:5432/notes
+      - SECRET_KEY=change-me-in-production
 
   notification-service:
     build:

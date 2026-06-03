@@ -1,4 +1,9 @@
-"""SQLAlchemy-модель заметки."""
+"""
+Принцип единственной ответственности (SRP).
+Принцип общего замыкания (CCP): Note относится к домену заметок,
+хранится в пакете notes/ вместе с кодом, изменяющимся по тем же
+причинам.
+"""
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
@@ -9,11 +14,11 @@ from database import Base
 class Note(Base):
     __tablename__ = "notes"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    text = Column(Text, default="")
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id         = Column(Integer, primary_key=True, index=True)
+    title      = Column(String, nullable=False)
+    text       = Column(Text, default="")
+    owner_id   = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    owner = relationship("auth.models.User", back_populates="notes")
+    owner = relationship("users.models.User", back_populates="notes")

@@ -1,4 +1,8 @@
-"""Маршруты для работы с заметками."""
+"""
+SRP: HTTP-маршрутизация заметок.
+DIP: зависит от интерфейсов INoteReader / INoteWriter.
+Интегрирован RBAC (security №3): администратор видит заметки любого пользователя.
+"""
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
@@ -6,11 +10,11 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from database import get_db
-from auth.models import User
+from users.models import User
 from notes.schemas import NoteCreate, NoteUpdate, NoteResponse
 from notes.repository import NoteRepository
 from interfaces import INoteReader, INoteWriter
-from security.rbac import is_admin
+from security.rbac import is_admin  # аспект безопасности №3
 
 router = APIRouter()
 
@@ -24,18 +28,22 @@ def _get_writer(db: Session) -> INoteWriter:
 
 
 def get_current_user(db: Session = Depends(get_db)) -> User:
-    """Временная заглушка для пользователя."""
+    """Заглушка; в production реализуется через JWT (см. auth/token_service.py)."""
     raise NotImplementedError("Implement JWT dependency in production")
 
 
 @router.get("/", response_model=List[NoteResponse])
 def list_notes(
-    q: Optional[str] = None,
-    owner_id: Optional[int] = None,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    q:          Optional[str] = None,
+    owner_id:   Optional[int] = None,   # только для ADMIN
+    user: User    = Depends(get_current_user),
+    db:   Session = Depends(get_db),
 ):
-    """Возвращает список заметок текущего пользователя или owner_id."""
+    """
+    RBAC: если пользователь — администратор, он может запросить заметки
+    любого пользователя через параметр ?owner_id=X.
+    Обычный пользователь видит только свои заметки.
+    """
     reader: INoteReader = _get_reader(db)
     target_id = user.id
     if owner_id is not None:
@@ -48,8 +56,8 @@ def list_notes(
 @router.post("/", response_model=NoteResponse)
 def create_note(
     data: NoteCreate,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    user: User    = Depends(get_current_user),
+    db:   Session = Depends(get_db),
 ):
     writer: INoteWriter = _get_writer(db)
     return writer.create(user.id, data.title, data.text or "")
@@ -58,9 +66,9 @@ def create_note(
 @router.put("/{note_id}", response_model=NoteResponse)
 def update_note(
     note_id: int,
-    data: NoteUpdate,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    data:    NoteUpdate,
+    user:    User    = Depends(get_current_user),
+    db:      Session = Depends(get_db),
 ):
     reader: INoteReader = _get_reader(db)
     note = reader.get_by_id(note_id, user.id)
@@ -73,16 +81,16 @@ def update_note(
 @router.delete("/{note_id}")
 def delete_note(
     note_id: int,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    user:    User    = Depends(get_current_user),
+    db:      Session = Depends(get_db),
 ):
     reader: INoteReader = _get_reader(db)
     note = reader.get_by_id(note_id, user.id)
     if not note and not is_admin(user):
         raise HTTPException(404, "Note not found")
     if not note:
+        # Администратор: поиск без фильтра по owner
         from notes.models import Note as NoteModel
-
         note = db.query(NoteModel).filter(NoteModel.id == note_id).first()
         if not note:
             raise HTTPException(404, "Note not found")
@@ -94,16 +102,14 @@ def delete_note(
 @router.get("/{note_id}/export")
 def export_note(
     note_id: int,
-    fmt: str = "txt",
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    fmt:     str  = "txt",
+    user:    User    = Depends(get_current_user),
+    db:      Session = Depends(get_db),
 ):
     reader: INoteReader = _get_reader(db)
     note = reader.get_by_id(note_id, user.id)
     if not note:
         raise HTTPException(404, "Note not found")
     if fmt == "json":
-        return JSONResponse(
-            content={"id": note.id, "title": note.title, "text": note.text}
-        )
+        return JSONResponse(content={"id": note.id, "title": note.title, "text": note.text})
     return PlainTextResponse(f"{note.title}\n\n{note.text}")
