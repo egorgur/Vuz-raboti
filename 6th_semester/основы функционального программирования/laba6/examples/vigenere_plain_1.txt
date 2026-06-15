@@ -1,0 +1,4 @@
+Hello, Functional Programming!
+This is a test file for Vigenere cipher.
+Key: LEMON.
+Numbers 123 and punctuation stay unchanged.

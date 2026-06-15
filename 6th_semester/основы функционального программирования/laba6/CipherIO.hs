@@ -1,97 +1,40 @@
--- =============================================================================
--- CipherIO.hs — Практическая работа №6, Вариант 7. Модуль ГРАНИЧНЫХ ФУНКЦИЙ.
--- =============================================================================
--- Здесь сосредоточен весь ввод-вывод (внешние эффекты) и перехват системных
--- исключений файловых операций. Результаты возвращаются как `IO (Either ...)`:
--- IO — для эффекта, Either — для бизнес-результата (успех/ошибка с причиной).
--- =============================================================================
-
 module CipherIO
--- Модуль с явным списком экспорта (наружу — только три функции).
-  ( processFile
-  , readFileSafe
-  , writeFileSafe
-  ) where
+  ( processFile,
+    readFileSafe,
+    writeFileSafe,
+  )
+where
 
-import Control.Exception (catch, IOException)
--- `catch :: Exception e => IO a -> (e -> IO a) -> IO a` — перехват исключений
---   IO-действия; `IOException` — тип ошибок ввода-вывода (нет файла и т.п.).
---   Зачем: системные ошибки приходят как исключения, а мы хотим превратить их
---   в аккуратное значение `Left "..."`, а не уронить программу.
-
-import Cipher (CipherMode(..), vigenereEncrypt, vigenereDecrypt, validateKey)
--- Импорт из нашего чистого модуля: тип режима, две функции шифрования и
---   валидатор ключа. Зачем: граничный слой ОПИРАЕТСЯ на чистую логику,
---   но не дублирует её — разделение ответственности.
-
--- -----------------------------------------------------------------------------
--- Общий обработчик файловых исключений
--- -----------------------------------------------------------------------------
+import Cipher (CipherMode (..), validateKey, vigenereDecrypt, vigenereEncrypt)
+import Control.Exception (IOException, catch)
 
 handleIO :: String -> IOException -> IO (Either String a)
--- Принимает описание действия и пойманное исключение, возвращает Left-результат.
---   Конкретный тип `IOException` во втором аргументе подсказывает `catch`,
---   исключения какого класса перехватывать (без расширений языка).
-
 handleIO action e = return (Left (action ++ " failed: " ++ show e))
--- `return` поднимает чистое значение `Left ...` в монаду IO.
---   `show e` превращает исключение в читаемый текст; `++` склеивает строки.
---   Зачем единый обработчик: не дублировать перехват в каждой файловой функции.
 
--- -----------------------------------------------------------------------------
 -- Безопасное чтение файла
--- -----------------------------------------------------------------------------
 
 readFileSafe :: FilePath -> IO (Either String String)
--- По пути возвращаем либо содержимое (Right), либо причину ошибки (Left).
-
 readFileSafe path =
   (Right <$> readFile path) `catch` handleIO ("Reading " ++ path)
--- `readFile path :: IO String` читает файл; `Right <$> ...` — оператор `<$>`
---   (это fmap) применяет `Right` ВНУТРИ IO, давая `IO (Either String String)`.
---   `... `catch` handleIO ...` — инфиксная запись catch: при исключении
---   управление уходит в обработчик, который вернёт Left.
---   Зачем `<$>`: удобно «обернуть» успешный результат в Right, не выходя из IO.
 
--- -----------------------------------------------------------------------------
 -- Безопасная запись файла
--- -----------------------------------------------------------------------------
 
 writeFileSafe :: FilePath -> String -> IO (Either String ())
--- Записываем строку в файл; результат — Right () при успехе или Left при ошибке.
-
 writeFileSafe path contents =
   (Right <$> writeFile path contents) `catch` handleIO ("Writing " ++ path)
--- `writeFile path contents :: IO ()` пишет содержимое; `Right <$> ...` даёт
---   `IO (Either String ())`. При ошибке (нет прав, неверный путь) сработает catch.
-
--- -----------------------------------------------------------------------------
--- processFile — основная граничная операция: зашифровать/расшифровать файл
--- -----------------------------------------------------------------------------
 
 processFile :: CipherMode -> String -> FilePath -> FilePath -> IO (Either String ())
--- Режим, ключ, путь входного файла, путь выходного файла -> результат в IO.
-
 processFile mode key inPath outPath =
   case validateKey key of
--- Сначала ЧИСТАЯ проверка ключа (без IO). `case ... of` разбирает Either.
-    Left err  -> return (Left err)
--- Ключ невалиден — сразу возвращаем ошибку, файлы не трогаем.
+    Left err -> return (Left err)
     Right () -> do
--- Ключ корректен — переходим к эффектам (вложенный do-блок).
       readResult <- readFileSafe inPath
--- `<-` извлекает результат чтения: `readResult :: Either String String`.
+
       case readResult of
-        Left err       -> return (Left err)
--- Чтение не удалось — пробрасываем ошибку дальше.
+        Left err -> return (Left err)
         Right contents -> do
--- Чтение успешно — `contents` это текст файла.
           let transformed = case mode of
-                              Encrypt -> vigenereEncrypt key contents
-                              Decrypt -> vigenereDecrypt key contents
--- `let` связывает результат ЧИСТОГО преобразования. Внутренний `case mode of`
---   выбирает шифрование или дешифрование. Зачем разделять: вычисление чистое
---   и не требует IO — эффект только в чтении/записи.
+                Encrypt -> vigenereEncrypt key contents
+                Decrypt -> vigenereDecrypt key contents
           writeFileSafe outPath transformed
--- Записываем результат; значение этого действия (Either) и есть итог processFile,
---   поэтому отдельный return не нужен — оно само имеет тип IO (Either String ()).
+

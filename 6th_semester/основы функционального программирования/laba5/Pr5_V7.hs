@@ -44,3 +44,12 @@ main = do
   putStrLn ("binomial 52 5  = " ++ show (binomial 52 5))
 
   putStrLn ("pascalAt 100 50 = " ++ show (pascalAt 100 50))
+-- ghci> :set +s
+-- ghci> take 6 pascal
+-- ghci> drop 3 (take 7 pascal)
+-- ghci> pascal !! 10
+-- ghci> pascalAt 1000000 5000000       
+-- ghci> length (show (pascalAt 2000 1000))   
+-- ghci> length (show (pascalAt 2000 1000))   
+-- ghci> sum (pascalRow 2000) == 2 ^ 2000   
+-- ghci> pascalAt 2000 1000 == pascalAt 2000 1000
